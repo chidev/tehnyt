@@ -43,21 +43,23 @@
 <div  v-for="(task, index) in filteredTaskList" class="columns" :key="task.id">
   <div class="column is-narrow"><div v-if="index==0" class="dropBetweenTask"></div>    <span class="icon"><i @click="deleteTask(task.id)" class="fas fa-trash-alt"></i></span>  </div>
   <div class="column is-two-fifths">
-    <drag @dragstart="dragStart(task.id)" @dragend="dragEnd" class="card is-shadowless" :style="'margin-left: ' + task.indent * 20 + 'px'"  :transfer-data="index"><template slot="image"><div class="column card">{{task.taskName}}</div> </template>
-
+    <template slot="image"><div class="column card">{{task.taskName}}</div> </template>
+<!-- <div class="card"> -->
       <drop v-if="index == 0" style="opacity: 0.3" @dragenter="dragEnterBetween('first')" @dragleave=dragLeaveBetween :class="{'dropBetweenTask': true, 'has-background-success': 'first' == betweenEnter}" @drop="droppedOnTask(task.id,-1,false, ...arguments)" :ref="'aboveTask' + index" class="dropBetweenTask"></drop>   
 
-      <div class="card">
+      <div class="card" :style="'margin-left: ' + task.indent * 20 + 'px'">
+        <drag @dragstart="dragStart(task.id)" @dragend="dragEnd"  :transfer-data="index" :tag="'span'"><b-tooltip label="Drag"><span class="icon"><i class="fas fa-grip-vertical"></i></span></b-tooltip></drag>
         <b-tooltip label="Force Next Action"><span class="icon"><i @click="clickedNext(task.id)" :class="['fas fa-long-arrow-alt-right ',{'has-text-success': task.isNext},{'has-text-grey-lighter': !task.isNext},{'has-text-danger': task.forceNext}]"></i></span></b-tooltip>
         <b-tooltip label="Toggle flag"><span class="icon"><i @click="task.flagged = !task.flagged" :class="['fas fa-flag',{'has-text-danger': task.flagged }]"></i></span></b-tooltip>
         <input type="checkbox" v-model="task.done" @change="completeChildren(task.id)">
-        <input :ref="'inputField' + index" @click="inputWasFocused(task.id)" @keydown.tab.prevent="tabPress(task.id, 1, $event)" @keydown.up="arrowPress(task.id, index, -1, ...arguments)" @keydown.down="arrowPress(task.id, index, 1, ...arguments)" @keydown.esc="pressedEsc(task.id, index, ...arguments)" @keydown.enter="pressedEnter(task.id, index, ...arguments)" type="text" v-model="task.taskName" class="task is-inline-flex">
+        <input :ref="'inputField' + index" @click="inputWasFocused(task.id)" @keydown.tab.prevent="tabPress(task.id, 1, $event)" @keydown.up="arrowPress(task.id, index, -1, ...arguments)" @keydown.down="arrowPress(task.id, index, 1, ...arguments)" @keydown.esc="pressedEsc(task.id, index, ...arguments)" @keydown.enter="pressedEnter(task.id, index, ...arguments)" @blur="taskBlurred(task.id, index, ...arguments)" type="text" v-model="task.taskName" class="task is-inline-flex">
         <drop v-if="(dragging && !task.notDroppable)" :class="{'is-overlay': true, 'has-background-success': index == draggedEnter}" @dragenter="dragEnter(index)" @dragleave=dragLeave @drop="droppedOnTask(task.id, index, true, ...arguments)" style="opacity: 0.3"></drop>
         <div v-if="(dragging && task.notDroppable)" :class="{'is-overlay': true, 'has-background-grey-lighter': true}" style="opacity: 0.3"></div>
+        {{taskList[index].taskName}}
       </div>
       <drop v-if="!task.notDroppable" style="opacity: 0.3" @dragenter="dragEnterBetween(index)" @dragleave=dragLeaveBetween :class="{'dropBetweenTask': true, 'has-background-success': index == betweenEnter}" @drop="droppedOnTask(task.id, index, false, ...arguments)" :ref="'belowTask' + index"></drop>   
       <div v-else :ref="'belowTask' + index" class="dropBetweenTask"></div> 
-    </drag>
+    <!-- </div> -->
 
 
   </div>
@@ -73,7 +75,7 @@
     <!--     <div @click="showTagEditor = !showTagEditor"> -->
 
       <b-field grouped ellipsis> <!-- Show only 1 tag and then edit cause I don't know how to stop tags from overflowing/wrapping -->
-        <div @click="showTagEditorFunction(index)" v-for="(tag, tagIndex) in task.tags.slice(0,2)" class="control" style="cursor: pointer;"> <!-- Show first tag and then more-button -->
+        <div @click="showTagEditorFunction(index)" v-for="(tag, tagIndex) in task.tags.slice(0,2)" :key="tag" class="control" style="cursor: pointer;"> <!-- Show first tag and then more-button -->
           <b-tag v-if="tagIndex === 0" type="is-primary">{{tag}}</b-tag>
           <b-tooltip :label="listTags(task.tags)">
             <b-tag v-if="tagIndex === 1">more...</b-tag>
@@ -595,6 +597,15 @@
     },
     inputWasFocused(taskId) { // Blur when focus lost & opposite
       const indexInMainList = this.getMainListIndexFromId(taskId);
+      this.temporaryEdit = this.taskList[indexInMainList].taskName;
+    },
+    taskBlurred(taskId, index, el) { // Move up/down between inputs
+    console.log("hhhej")
+      const indexInMainList = this.getMainListIndexFromId(taskId);
+      if (this.temporaryEdit == "" && el.target.value == "") {
+        this.taskList.splice(indexInMainList, 1);
+      }
+              this.taskList[indexInMainList] = this.filteredTaskList[index];
       this.temporaryEdit = this.taskList[indexInMainList].taskName;
     }
   },
