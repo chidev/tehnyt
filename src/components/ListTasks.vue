@@ -352,10 +352,11 @@
              deleteTask(taskId){
                const indexInMainList = this.getMainListIndexFromId(taskId);
                      let a = this.findNextNonChild(this.taskList, taskId);
-     this.taskList.splice(indexInMainList, a[1] - a[0]); // Length of tasks to be deleted taken from child end - child start
+     this.taskList.splice(indexInMainList, a[1] - a[0]); // Length of taks to be deleted taken from child end - child start
              },
              dragEnter(index) {
-              this.draggedEnter = index;
+              this.draggedEnter = index; // Test comment
+              
             },
             dragLeave() {
               this.draggedEnter = -1;
