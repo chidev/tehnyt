@@ -50,12 +50,11 @@
       <div class="card" :style="'margin-left: ' + task.indent * 20 + 'px'">
         <drag @dragstart="dragStart(task.id)" @dragend="dragEnd"  :transfer-data="index" :tag="'span'"><b-tooltip label="Drag"><span class="icon"><i class="fas fa-grip-vertical"></i></span></b-tooltip></drag>
         <b-tooltip label="Force Next Action"><span class="icon"><i @click="clickedNext(task.id)" :class="['fas fa-long-arrow-alt-right ',{'has-text-success': task.isNext},{'has-text-grey-lighter': !task.isNext},{'has-text-danger': task.forceNext}]"></i></span></b-tooltip>
-        <b-tooltip label="Toggle flag"><span class="icon"><i @click="task.flagged = !task.flagged" :class="['fas fa-flag',{'has-text-danger': task.flagged }]"></i></span></b-tooltip>
+        <b-tooltip label="Toggle flag"><span class="icon"><i @click="clickedFlag(task.id)" :class="['fas fa-flag',{'has-text-danger': task.flagged }]"></i></span></b-tooltip>
         <input type="checkbox" v-model="task.done" @change="completeChildren(task.id)">
-        <input :ref="'inputField' + index" @click="inputWasFocused(task.id)" @keydown.tab.prevent="tabPress(task.id, 1, $event)" @keydown.up="arrowPress(task.id, index, -1, ...arguments)" @keydown.down="arrowPress(task.id, index, 1, ...arguments)" @keydown.esc="pressedEsc(task.id, index, ...arguments)" @keydown.enter="pressedEnter(task.id, index, ...arguments)" @blur="taskBlurred(task.id, index, ...arguments)" type="text" v-model="task.taskName" class="task is-inline-flex">
+        <input :ref="'inputField' + index" @click="inputWasFocused(task.id)" @keydown.tab.prevent="tabPress(task.id, 1, $event)" @keydown.up="arrowPress(task.id, index, -1, ...arguments)" @keydown.down="arrowPress(task.id, index, 1, ...arguments)" @keydown.esc="pressedEsc(task.id, index, ...arguments)" @keydown.enter="pressedEnter(task.id, index, ...arguments)" @blur="taskBlurred(task.id, index, ...arguments)" type="text" :value="task.taskName" @input="taskListWithImportance = { index: index, value: $event.target.value }" class="task is-inline-flex">
         <drop v-if="(dragging && !task.notDroppable)" :class="{'is-overlay': true, 'has-background-success': index == draggedEnter}" @dragenter="dragEnter(index)" @dragleave=dragLeave @drop="droppedOnTask(task.id, index, true, ...arguments)" style="opacity: 0.3"></drop>
         <div v-if="(dragging && task.notDroppable)" :class="{'is-overlay': true, 'has-background-grey-lighter': true}" style="opacity: 0.3"></div>
-        {{taskList[index].taskName}}
       </div>
       <drop v-if="!task.notDroppable" style="opacity: 0.3" @dragenter="dragEnterBetween(index)" @dragleave=dragLeaveBetween :class="{'dropBetweenTask': true, 'has-background-success': index == betweenEnter}" @drop="droppedOnTask(task.id, index, false, ...arguments)" :ref="'belowTask' + index"></drop>   
       <div v-else :ref="'belowTask' + index" class="dropBetweenTask"></div> 
@@ -108,7 +107,16 @@
 {{task.importance}}</div>
 
 </div>
-{{filteredTaskList}}
+<!-- Original: <div  v-for="(task, index) in taskList" class="columns">
+  {{index}} - {{task.taskName}}
+
+  </div> -->
+
+Tasklist: {{taskList[0].flagged}}<br/>
+Filtered: {{filteredTaskList[0].flagged}}<br/>
+Importance: {{taskListWithImportance[0].flagged}}
+
+<pre>{{taskList}}</pre>
 </div>
 
 
@@ -149,6 +157,7 @@
           isNext: false,
           notDroppable: false,
           tags: [],
+          importance: 0,
           id: "",
         },
         taskList: [{
@@ -162,6 +171,7 @@
           isNext: true,
           notDroppable: false,
           tags: [],
+          importance: 0,
           id: 435353245,
         }, {
           taskName: "2: Has flag",
@@ -174,6 +184,7 @@
           isNext: false,
           notDroppable: false,
           tags: ["Hello"],
+          importance: 0,
           id: 245325432543253,
         }, {
           taskName: "3: I have 2 children",
@@ -186,6 +197,7 @@
           isNext: false,
           notDroppable: false,
           tags: [],
+          importance: 0,
           id: 423525435534
         }, {
           taskName: "3.1 Child uno",
@@ -198,6 +210,7 @@
           isNext: false,
           notDroppable: false,
           tags: [],
+          importance: 0,
           id: 9234823432,
         }, {
           taskName: "3.2 Child due",
@@ -210,6 +223,7 @@
           isNext: false,
           notDroppable: false,
           tags: [],
+          importance: 0,
           id: 92384324832,
         }, {
           taskName: "4. I have 2 children",
@@ -222,6 +236,7 @@
           isNext: false,
           notDroppable: false,
           tags: [],
+          importance: 0,
           id: 235436546456,
         }, {
           taskName: "4.1 Child uno",
@@ -234,6 +249,7 @@
           isNext: false,
           notDroppable: false,
           tags: ["Work", "Family", "Friends", "Home", "Evening"],
+          importance: 0,
           id: 5262562456234,
         }, {
           taskName: "4.2 Child with tags",
@@ -246,6 +262,7 @@
           isNext: false,
           notDroppable: false,
           tags: ["Work", "Family", "Friends", "Home", "Evening"],
+          importance: 0,
           id: 5243549484874,
         }, {
           taskName: "5 indent",
@@ -258,6 +275,7 @@
           isNext: false,
           notDroppable: false,
           tags: [],
+          importance: 0,
           id: 4329324222393,
         }, {
           taskName: "6 Future start",
@@ -270,6 +288,7 @@
           isNext: false,
           notDroppable: false,
           tags: [],
+          importance: 0,
           id: 432932482393,
         }, {
           taskName: "7 done",
@@ -282,25 +301,39 @@
           isNext: false,
           notDroppable: false,
           tags: [],
+          importance: 0,
           id: 432932482333,
         }]
       }
     },
-    watch: {
-      taskListWasChanged: {
-        handler: function (val, oldVal) {
+    // watch: {
+    // //   taskListWasChanged: {
+    // //     handler: function (val, oldVal) {
 
-          this.recalculateIsNext();
+    // //       this.recalculateIsNext();
                            
-        }
+    // //     }
 
-      }
-    },
+    // //   },
+    //   taskList: {
+    //     handler: function(){
+    //     calcimportance()
+    //     }
+    //   }
+    // },
     computed: {
-      taskListWithImportance: function () {
-        return this.taskList.map(x => {
-          return {...x, importance: this.calculateImportance(x)}
-        })
+      // taskListWithImportance: function () {
+      //   return this.taskList.map(x => {
+      //     return {...x, importance: this.calculateImportance(x)}
+      //   })
+      // },
+      taskListWithImportance: {
+    	get () {
+      	return this.taskList.map(x => ({...x, importance: this.calculateImportance(x) }));
+      },
+      set (val) {
+      	this.taskList[val.index].taskName = val.value;
+      }
       },
       taskListWasChanged() {
                 return [this.taskList.reduce((a, {indent}) => a + indent, 0), this.taskList.filter(item => item.done == false).length] // if a task is indented or done/undone then is true
@@ -337,7 +370,7 @@
                 this.$nextTick(() => this.$refs['tagField' + index][0].focus());
               },
               calculateImportance(item) {
-                let yy = item.indent * 10;
+                let yy = item.indent * 10 + item.flagged;
                 return yy
               },
               addTagsToTagList(newTag){
@@ -346,6 +379,10 @@
                   this.tagList.push(newTag);
                 }
               },
+               clickedFlag(taskId){
+               const indexInMainList = this.getMainListIndexFromId(taskId);
+               this.taskList[indexInMainList].flagged = !this.taskList[indexInMainList].flagged;
+             },
               clickedNext(taskId){
                const indexInMainList = this.getMainListIndexFromId(taskId);
                this.taskList[indexInMainList].forceNext = !this.taskList[indexInMainList].forceNext;
@@ -388,6 +425,7 @@
             recalculateIsNext() {
               {
                 this.taskList.forEach((item, index) => {
+                  item.importance = item.indent * 10;
                   item.isNext = item.forceNext;
                   let hasActiveChildren = false;
                   let foundActiveTask = false
@@ -558,6 +596,13 @@
     }
   },
     arrowPress(taskId, index, value, el) { // Move up/down between inputs
+    if (index + value <= 0) { // Moving up from list
+        this.$nextTick(() => el.target.blur());
+        return;
+    } else if (index + value >= this.filteredTaskList.length) { // Moving down from list
+        this.$nextTick(() => el.target.blur());
+        return;
+    }
       const indexInMainList = this.getMainListIndexFromId(taskId);
       if (this.temporaryEdit == "" && el.target.value == "") {
         this.taskList.splice(indexInMainList, 1);
@@ -599,14 +644,24 @@
       const indexInMainList = this.getMainListIndexFromId(taskId);
       this.temporaryEdit = this.taskList[indexInMainList].taskName;
     },
-    taskBlurred(taskId, index, el) { // Move up/down between inputs
-    console.log("hhhej")
-      const indexInMainList = this.getMainListIndexFromId(taskId);
-      if (this.temporaryEdit == "" && el.target.value == "") {
-        this.taskList.splice(indexInMainList, 1);
-      }
-              this.taskList[indexInMainList] = this.filteredTaskList[index];
-      this.temporaryEdit = this.taskList[indexInMainList].taskName;
+    taskBlurred(taskId, index, el) { // Check if empty task and if so delete it ALSO recalculate all importance
+    const indexInMainList = this.getMainListIndexFromId(taskId);
+    if (el.target.value == "" && this.temporaryEdit == "") {
+this.taskList.splice(indexInMainList, 1);
+    } else if (el.target.value == "" && !this.temporaryEdit == "") {
+      console.log("update")
+      this.taskList[indexInMainList].taskName = this.temporaryEdit;
+    }
+      // const indexInMainList = this.getMainListIndexFromId(taskId);
+      // if (this.temporaryEdit == "") {
+      //   this.taskList.splice(indexInMainList, 1);
+      // }
+      //         this.taskList[indexInMainList] = this.filteredTaskList[index];
+              
+  // this.taskList.forEach((item, index) => {
+  //                 item.importance = item.indent * 10 + item.flagged;
+  //             })
+              
     }
   },
   beforeMount(){
