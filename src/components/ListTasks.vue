@@ -24,8 +24,8 @@
         </span>
       </div>
       <div class="column column is-two-fifths">Task</div>
-      <div class="column">Due-date</div>
       <div class="column">Start-date</div>
+      <div class="column">Due-date</div>
       <div class="column">Tags</div>
       <div class="column">Importance</div>
     </div>
@@ -33,6 +33,7 @@
       <div class="column is-narrow">
         <div v-if="index==0" class="dropBetweenTask"></div>
         <span class="icon">
+                    <input type="checkbox" v-model="task.selected">
           <i @click="deleteTask(task.id, 'trashcan')" class="fas fa-trash-alt"></i>
         </span>
       </div>
@@ -81,7 +82,14 @@
               ></i>
             </span>
           </b-tooltip>
-          <input type="checkbox" v-model="task.done" @change="completeChildren(task.id)">
+            <b-tooltip label="Complete task">
+            <span class="icon">
+              <i
+                @click="completeChildren(task.id)"
+                 :class="['fas fa-check',{'has-text-success': task.done }]"
+              ></i>
+            </span>
+          </b-tooltip>
           <input
             :ref="'inputField' + index"
             @click="inputWasFocused(task.id, index, ...arguments)"
@@ -94,8 +102,7 @@
             @keyup.delete="tasksDeleted = false"
             @blur="taskBlurred(task.id, index, ...arguments)"
             type="text"
-            :value="task.taskName"
-            @input="taskListWithImportance = { index: index, value: $event.target.value }"
+            v-model="task.taskName"
             class="task is-inline-flex"
           >
           <drop
@@ -124,17 +131,40 @@
         <div v-else :ref="'belowTask' + index" class="dropBetweenTask"></div>
         <!-- </div> -->
       </div>
+      <div class="column">
+        <div v-if="index==0" class="dropBetweenTask"></div>
+        <!---Adjust vertical alignement -->
+ <b-field><b-datepicker v-model="task.start"
+            :first-day-of-week="1" :date-formatter="(date) => (showRelativeDate(index,'start'))"   >
+            
+             <button class="button is-primary"
+                @click="task.start = new Date()">
+                <b-icon icon="calendar-today"></b-icon>
+                <span>Today</span>
+            </button>
+              <button class="button is-danger"
+                @click="task.start = null">
+                <b-icon icon="close"></b-icon>
+                <span>None</span>
+            </button></b-datepicker></b-field>
+      </div>
+      <div class="column">
+        <div v-if="index==0" class="dropBetweenTask"></div>
+        <!---Adjust vertical alignement -->
+         <b-field><b-datepicker v-model="task.due"
+            :first-day-of-week="1" :date-formatter="(date) => (showRelativeDate(index,'due'))"            >
+             <button class="button is-primary"
+                @click="task.due = new Date()">
+                <b-icon icon="calendar-today"></b-icon>
+                <span>Today</span>
+            </button>
+              <button class="button is-danger"
+                @click="task.due = null">
+                <b-icon icon="close"></b-icon>
+                <span>None</span>
+            </button></b-datepicker></b-field>
+      </div>
 
-      <div class="column">
-        <div v-if="index==0" class="dropBetweenTask"></div>
-        <!---Adjust vertical alignement -->
-        {{showRelativeDate(index,"due")}}
-      </div>
-      <div class="column">
-        <div v-if="index==0" class="dropBetweenTask"></div>
-        <!---Adjust vertical alignement -->
-        {{showRelativeDate(index,"start")}}
-      </div>
       <div class="column">
         <div v-if="index==0" class="dropBetweenTask"></div>
         <!---Adjust vertical alignement -->
@@ -195,13 +225,13 @@
     <br>
     Filtered: {{filteredTaskList[0].flagged}}
     <br>
-    Importance: {{taskListWithImportance[0].flagged}}
+    <!-- Importance: {{taskListWithImportance[0].flagged}} -->
     Tasklist:
     <pre>{{taskList}}</pre>
     <br>Filtered:
     <pre>{{filteredTaskList}}</pre>
     <br>Importance:
-    <pre>{{taskListWithImportance}}</pre>
+    <!-- <pre>{{taskListWithImportance}}</pre> -->
     <br>
   </div>
 </template>
@@ -235,8 +265,8 @@ export default {
         taskName: "",
         indent: 0,
         done: false,
-        start: "2018-11-10T21:51:40.598Z",
-        due: "2018-11-10T21:51:40.598Z",
+        start: new Date("2018-11-10T21:51:40.598Z"),
+        due: new Date("2018-11-10T21:51:40.598Z"),
         flagged: false,
         forceNext: false,
         isNext: false,
@@ -250,8 +280,8 @@ export default {
           taskName: "1: flagged and next",
           indent: 0,
           done: false,
-          start: "2018-11-10T21:51:40.598Z",
-          due: "2018-11-10T21:51:40.598Z",
+          start: new Date("2018-11-10T21:51:40.598Z"),
+          due: new Date("2018-11-10T21:51:40.598Z"),
           flagged: false,
           forceNext: true,
           isNext: true,
@@ -264,8 +294,8 @@ export default {
           taskName: "2: Has flag",
           indent: 0,
           done: false,
-          start: "2018-11-10T21:51:40.598Z",
-          due: "2018-11-18T21:51:40.598Z",
+          start: new Date("2018-11-10T21:51:40.598Z"),
+          due: new Date("2018-11-18T21:51:40.598Z"),
           flagged: true,
           forceNext: false,
           isNext: false,
@@ -278,8 +308,8 @@ export default {
           taskName: "3: I have 2 children",
           indent: 0,
           done: false,
-          start: "2018-11-10T21:51:40.598Z",
-          due: "2018-11-25T21:51:40.598Z",
+          start: new Date("2018-11-10T21:51:40.598Z"),
+          due: new Date("2018-11-25T21:51:40.598Z"),
           flagged: false,
           forceNext: false,
           isNext: false,
@@ -292,8 +322,8 @@ export default {
           taskName: "3.1 Child uno",
           indent: 1,
           done: false,
-          start: "2018-11-10T21:51:40.598Z",
-          due: "2018-11-25T21:51:40.598Z",
+          start: new Date("2018-11-10T21:51:40.598Z"),
+          due: new Date("2018-11-25T21:51:40.598Z"),
           flagged: false,
           forceNext: false,
           isNext: false,
@@ -306,8 +336,8 @@ export default {
           taskName: "3.2 Child due",
           indent: 1,
           done: false,
-          start: "2018-11-10T21:51:40.598Z",
-          due: "2018-11-28T21:51:40.598Z",
+          start: new Date("2018-11-10T21:51:40.598Z"),
+          due: new Date("2018-11-28T21:51:40.598Z"),
           flagged: false,
           forceNext: false,
           isNext: false,
@@ -320,8 +350,8 @@ export default {
           taskName: "4. I have 2 children",
           indent: 0,
           done: false,
-          start: "2018-11-10T21:51:40.598Z",
-          due: "2018-12-02T21:51:40.598Z",
+          start: new Date("2018-11-10T21:51:40.598Z"),
+          due: new Date("2018-12-02T21:51:40.598Z"),
           flagged: false,
           forceNext: false,
           isNext: false,
@@ -334,8 +364,8 @@ export default {
           taskName: "4.1 Child uno",
           indent: 1,
           done: false,
-          start: "2018-11-10T21:51:40.598Z",
-          due: "2018-12-18T21:51:40.598Z",
+          start: new Date("2018-11-10T21:51:40.598Z"),
+          due: new Date("2018-12-18T21:51:40.598Z"),
           flagged: false,
           forceNext: false,
           isNext: false,
@@ -348,8 +378,8 @@ export default {
           taskName: "4.2 Child with tags",
           indent: 1,
           done: false,
-          start: "2018-11-10T21:51:40.598Z",
-          due: "2019-01-18T21:51:40.598Z",
+          start: new Date("2018-11-10T21:51:40.598Z"),
+          due: new Date("2019-01-18T21:51:40.598Z"),
           flagged: false,
           forceNext: false,
           isNext: false,
@@ -362,8 +392,8 @@ export default {
           taskName: "5 indent",
           indent: 0,
           done: false,
-          start: "2018-11-10T21:51:40.598Z",
-          due: "2018-11-05T21:51:40.598Z",
+          start: new Date("2018-11-10T21:51:40.598Z"),
+          due: new Date("2018-11-05T21:51:40.598Z"),
           flagged: false,
           forceNext: false,
           isNext: false,
@@ -376,8 +406,8 @@ export default {
           taskName: "6 Future start",
           indent: 0,
           done: false,
-          start: "2019-11-10T21:51:40.598Z",
-          due: "2018-11-05T21:51:40.598Z",
+          start: new Date("2019-11-10T21:51:40.598Z"),
+          due: new Date("2018-11-05T21:51:40.598Z"),
           flagged: false,
           forceNext: false,
           isNext: false,
@@ -390,8 +420,8 @@ export default {
           taskName: "7 done",
           indent: 0,
           done: true,
-          start: "2018-11-10T21:51:40.598Z",
-          due: "2018-11-05T21:51:40.598Z",
+          start: new Date("2018-11-10T21:51:40.598Z"),
+          due: new Date("2018-11-05T21:51:40.598Z"),
           flagged: false,
           forceNext: false,
           isNext: false,
@@ -424,35 +454,35 @@ export default {
     //     return {...x, importance: this.calculateImportance(x)}
     //   })
     // },
-    taskListWithImportance: {
-      get() {
-        // Calculate importance per task
-        return this.taskList.map(x => ({
-          ...x,
-          importance: this.calculateImportance(x)
-        }));
-      },
-      set(val) {
-        // Update task name based on input
-        let indexInMainList = this.getMainListIndexFromId(
-          this.filteredTaskList[val.index].id
-        );
-        this.taskList[indexInMainList].taskName = val.value;
-      }
-    },
-    taskListWasChanged() {
-      return [
-        this.taskList.reduce((a, { indent }) => a + indent, 0),
-        this.taskList.filter(item => item.done == false).length
-      ]; // if a task is indented or done/undone then is true
-    },
+    // taskListWithImportance: {
+    //   get() {
+    //     // Calculate importance per task
+    //     return this.taskList.map(x => ({
+    //       ...x,
+    //       importance: this.calculateImportance(x)
+    //     }));
+    //   },
+    //   set(val) {
+    //     // Update task name based on input
+    //     let indexInMainList = this.getMainListIndexFromId(
+    //       this.filteredTaskList[val.index].id
+    //     );
+    //     this.taskList[indexInMainList].taskName = val.value;
+    //   }
+    // },
+    // taskListWasChanged() {
+    //   return [
+    //     this.taskList.reduce((a, { indent }) => a + indent, 0),
+    //     this.taskList.filter(item => item.done == false).length
+    //   ]; // if a task is indented or done/undone then is true
+    // },
     newId() {
       return this.taskList.length == 0
         ? 1
         : Math.max(...this.taskList.map(r => r.id)) + 1;
     },
     filteredTaskList() {
-      return this.taskListWithImportance.filter(task => {
+      return this.taskList.filter(task => {
         let shouldBeZeroForTrue = 0;
         if (this.showFuture === "No") {
           shouldBeZeroForTrue =
@@ -718,8 +748,8 @@ export default {
     },
     completeChildren(taskId) {
       const currentTaskIndex = this.getMainListIndexFromId(taskId);
-      this.taskList[currentTaskIndex].done = !this.taskList[currentTaskIndex]
-        .done;
+      // this.taskList[currentTaskIndex].done = !this.taskList[currentTaskIndex].done;
+      if (this.taskList[currentTaskIndex].done == false) {;
       let a = this.findNextNonChild(this.taskList, taskId); // complete task + children
       for (let i = a[0]; i < a[1]; i++) {
         this.taskList[i].done = true;
@@ -734,6 +764,9 @@ export default {
             this.taskList[i].isNext = true;
             break;
           }
+      }
+      } else {
+        this.taskList[currentTaskIndex].done = false;
       }
     },
     findNextNonChild(arr, taskId) {
