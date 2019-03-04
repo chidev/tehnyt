@@ -29,11 +29,11 @@
       <div class="column">Tags</div>
       <div class="column">Importance</div>
     </div>
-    <div v-for="(task, index) in filteredTaskList" class="columns" :key="task.id" v-once>
+    <div v-for="(task, index) in filteredTaskList" class="columns" :key="task.id">
       <div class="column is-narrow">
         <div v-if="index==0" class="dropBetweenTask"></div>
         <span class="icon">
-                    <input type="checkbox" v-model="task.selected">
+                    <tehnytShowIcon :task="task"></tehnytShowIcon>
           <i @click="deleteTask(task.id, 'trashcan')" class="fas fa-trash-alt"></i>
         </span>
       </div>
@@ -243,6 +243,7 @@
 
 <script>
 import moment from "moment";
+import tehnytShowIcon from "./tehnytShowIcon.vue";
 export default {
   // updated(){
   // const allEqual = arr => arr.every( v => v === arr[0] )
@@ -250,7 +251,9 @@ export default {
   // this.taskList = this.filteredTaskList;
   //   console.log("hej")
   // },
-  components: {},
+  components: {
+    tehnytShowIcon
+  },
   data() {
     return {
       showTagEditor: false,
