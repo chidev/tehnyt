@@ -54,6 +54,7 @@
         ></drop>
 
         <div class="card" :style="'margin-left: ' + task.indent * 20 + 'px'">
+                    <b-field>
           <drag
             @dragstart="dragStart(task.id)"
             @dragend="dragEnd"
@@ -90,10 +91,10 @@
               ></i>
             </span>
           </b-tooltip>
-          <input
+          <b-input
             :ref="'inputField' + index"
             @click="inputWasFocused(task.id, index, ...arguments)"
-            @keydown.tab.prevent="tabPress(task.id, 1, $event)"
+            @keydown.tab.native.prevent="tabPress(task.id, 1, $event)"
             @keydown.up="arrowPress(task.id, index, -1, ...arguments)"
             @keydown.down="arrowPress(task.id, index, 1, ...arguments)"
             @keydown.esc="pressedEsc(task.id, index, ...arguments)"
@@ -102,9 +103,11 @@
             @keyup.delete="tasksDeleted = false"
             @blur="taskBlurred(task.id, index, ...arguments)"
             type="text"
+            :expanded=true
             v-model="task.taskName"
             class="task is-inline-flex"
-          >
+          ></b-input>
+
           <drop
             v-if="(dragging && !task.notDroppable)"
             :class="{'is-overlay': true, 'has-background-success': index == draggedEnter}"
@@ -118,6 +121,7 @@
             :class="{'is-overlay': true, 'has-background-grey-lighter': true}"
             style="opacity: 0.3"
           ></div>
+                  </b-field>
         </div>
         <drop
           v-if="!task.notDroppable"
@@ -265,15 +269,15 @@ export default {
         taskName: "",
         indent: 0,
         done: false,
-        start: new Date("2018-11-10T21:51:40.598Z"),
-        due: new Date("2018-11-10T21:51:40.598Z"),
+        start: new Date(""),
+        due: new Date(""),
         flagged: false,
         forceNext: false,
         isNext: false,
         notDroppable: false,
         tags: [],
         importance: 0,
-        id: ""
+        id: this.newId
       },
       taskList: [
         {
@@ -482,7 +486,7 @@ export default {
         : Math.max(...this.taskList.map(r => r.id)) + 1;
     },
     filteredTaskList() {
-      return this.taskList.filter(task => {
+      const theFilteredOutcome = this.taskList.filter(task => {
         let shouldBeZeroForTrue = 0;
         if (this.showFuture === "No") {
           shouldBeZeroForTrue =
@@ -500,6 +504,13 @@ export default {
           return false;
         }
       });
+      if (theFilteredOutcome.length > 0) {
+      return theFilteredOutcome;}
+      else {
+        return [ {
+           ...this.templateTask 
+        }];
+      }
     }
   },
   methods: {
@@ -565,7 +576,7 @@ export default {
       }
     },
     dragEnter(index) {
-      this.draggedEnter = index; // Test comment
+      this.draggedEnter = index;
     },
     dragLeave() {
       this.draggedEnter = -1;
@@ -747,6 +758,7 @@ export default {
       return a;
     },
     completeChildren(taskId) {
+      
       const currentTaskIndex = this.getMainListIndexFromId(taskId);
       // this.taskList[currentTaskIndex].done = !this.taskList[currentTaskIndex].done;
       if (this.taskList[currentTaskIndex].done == false) {;
