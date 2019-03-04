@@ -29,7 +29,7 @@
       <div class="column">Tags</div>
       <div class="column">Importance</div>
     </div>
-    <div v-for="(task, index) in filteredTaskList" class="columns" :key="task.id">
+    <div v-for="(task, index) in filteredTaskList" class="columns" :key="task.id" v-once>
       <div class="column is-narrow">
         <div v-if="index==0" class="dropBetweenTask"></div>
         <span class="icon">
@@ -225,6 +225,7 @@
   {{index}} - {{task.taskName}}
 
     </div>-->
+        <button @click="addTasks()">Add tasks</button>
     Tasklist: {{taskList[0].flagged}}
     <br>
     Filtered: {{filteredTaskList[0].flagged}}
@@ -501,7 +502,7 @@ export default {
         if (shouldBeZeroForTrue === 0) {
           return true;
         } else {
-          return false;
+          return theFilteredOutcome;
         }
       });
       if (theFilteredOutcome.length > 0) {
@@ -514,6 +515,11 @@ export default {
     }
   },
   methods: {
+    addTasks(){
+      for (let i=0;i < 500;i++){
+        this.taskList.splice(this.taskList.length, 0, { ...this.templateTask });
+      }
+    },
     listTags(tags) {
       return tags.slice(1, tags.length).join(", ");
     },
