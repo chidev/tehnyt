@@ -34,15 +34,16 @@
         <div v-if="index==0" class="dropBetweenTask"></div>
         <span class="icon">
                     <tehnytShowIcon :task="task"></tehnytShowIcon>
-          <i @click="deleteTask(task.id, 'trashcan')" class="fas fa-trash-alt"></i>
+                    <tehnytDeleteTask @deleteTask="deleteTask(task.id, 'trashcan')"></tehnytDeleteTask>
+      
         </span>
       </div>
       <div class="column is-two-fifths">
-        <template slot="image">
+        <!-- <template slot="image">
           <div class="column card">{{task.taskName}}</div>
-        </template>
+        </template> -->
         <!-- <div class="card"> -->
-        <drop
+        <!-- <drop
           v-if="index == 0"
           style="opacity: 0.3"
           @dragenter="dragEnterBetween('first')"
@@ -51,11 +52,11 @@
           @drop="droppedOnTask(task.id,-1,false, ...arguments)"
           :ref="'aboveTask' + index"
           class="dropBetweenTask"
-        ></drop>
+        ></drop> -->
 
         <div class="card" :style="'margin-left: ' + task.indent * 20 + 'px'">
-                    <b-field>
-          <drag
+                    <!-- <b-field> -->
+          <!-- <drag
             @dragstart="dragStart(task.id)"
             @dragend="dragEnd"
             :transfer-data="index"
@@ -66,64 +67,38 @@
                 <i class="fas fa-grip-vertical"></i>
               </span>
             </b-tooltip>
-          </drag>
-          <b-tooltip label="Force Next Action">
-            <span class="icon">
-              <i
-                @click="clickedNext(task.id)"
-                :class="['fas fa-long-arrow-alt-right ',{'has-text-success': task.isNext},{'has-text-grey-lighter': !task.isNext},{'has-text-danger': task.forceNext}]"
-              ></i>
-            </span>
-          </b-tooltip>
-          <b-tooltip label="Toggle flag">
-            <span class="icon">
-              <i
-                @click="clickedFlag(task.id)"
-                :class="['fas fa-flag',{'has-text-danger': task.flagged }]"
-              ></i>
-            </span>
-          </b-tooltip>
-            <b-tooltip label="Complete task">
-            <span class="icon">
-              <i
-                @click="completeChildren(task.id)"
-                 :class="['fas fa-check',{'has-text-success': task.done }]"
-              ></i>
-            </span>
-          </b-tooltip>
-          <b-input
-            :ref="'inputField' + index"
+          </drag> -->
+          <tehnytForceNextAction @clickedNext="clickedNext(task.id)" :task="task"></tehnytForceNextAction>
+          <tehnytFlag @clickedFlag="clickedFlag(task.id)" :task="task"></tehnytFlag>
+          <tehnytcompleteChildren @completeChildren="completeChildren(task.id)" :task="task"></tehnytcompleteChildren>
+        <tehnytTaskName 
+            :task="task" :index="index"></tehnytTaskName>
+           <!-- @clicvk="testFunction($event, 'inputEvent')"
             @click="inputWasFocused(task.id, index, ...arguments)"
-            @keydown.tab.native.prevent="tabPress(task.id, 1, $event)"
-            @keydown.up="arrowPress(task.id, index, -1, ...arguments)"
+            @keydown.tab.prevent="tabPress(task.id, 1, $event)"
+            @keydown.up.native="arrowPress(task.id, index, -1, ...arguments)"
             @keydown.down="arrowPress(task.id, index, 1, ...arguments)"
             @keydown.esc="pressedEsc(task.id, index, ...arguments)"
             @keydown.enter="pressedEnter(task.id, index, ...arguments)"
             @keydown.delete="deleteTask(task.id, -1, index, $event, ...arguments)"
             @keyup.delete="tasksDeleted = false"
-            @blur="taskBlurred(task.id, index, ...arguments)"
-            type="text"
-            :expanded=true
-            v-model="task.taskName"
-            class="task is-inline-flex"
-          ></b-input>
-
-          <drop
+            @blur="taskBlurred(task.id, index, ...arguments)"   -->
+          <!-- <drop
             v-if="(dragging && !task.notDroppable)"
             :class="{'is-overlay': true, 'has-background-success': index == draggedEnter}"
             @dragenter="dragEnter(index)"
             @dragleave="dragLeave"
             @drop="droppedOnTask(task.id, index, true, ...arguments)"
             style="opacity: 0.3"
-          ></drop>
-          <div
+          ></drop> -->
+          <!-- <div
             v-if="(dragging && task.notDroppable)"
             :class="{'is-overlay': true, 'has-background-grey-lighter': true}"
             style="opacity: 0.3"
-          ></div>
-                  </b-field>
+          ></div> -->
+                  <!-- </b-field> -->
         </div>
-        <drop
+        <!-- <drop
           v-if="!task.notDroppable"
           style="opacity: 0.3"
           @dragenter="dragEnterBetween(index)"
@@ -132,71 +107,48 @@
           @drop="droppedOnTask(task.id, index, false, ...arguments)"
           :ref="'belowTask' + index"
         ></drop>
-        <div v-else :ref="'belowTask' + index" class="dropBetweenTask"></div>
+        <div v-else :ref="'belowTask' + index" class="dropBetweenTask"></div> -->
         <!-- </div> -->
       </div>
       <div class="column">
-        <div v-if="index==0" class="dropBetweenTask"></div>
+        <!-- <div v-if="index==0" class="dropBetweenTask"></div> -->
         <!---Adjust vertical alignement -->
- <b-field><b-datepicker v-model="task.start"
-            :first-day-of-week="1" :date-formatter="(date) => (showRelativeDate(index,'start'))"   >
-            
-             <button class="button is-primary"
-                @click="task.start = new Date()">
-                <b-icon icon="calendar-today"></b-icon>
-                <span>Today</span>
-            </button>
-              <button class="button is-danger"
-                @click="task.start = null">
-                <b-icon icon="close"></b-icon>
-                <span>None</span>
-            </button></b-datepicker></b-field>
+                  <tehnytStartDate :task="task"></tehnytStartDate>
+ 
       </div>
       <div class="column">
-        <div v-if="index==0" class="dropBetweenTask"></div>
+        <!-- <div v-if="index==0" class="dropBetweenTask"></div> -->
         <!---Adjust vertical alignement -->
-         <b-field><b-datepicker v-model="task.due"
-            :first-day-of-week="1" :date-formatter="(date) => (showRelativeDate(index,'due'))"            >
-             <button class="button is-primary"
-                @click="task.due = new Date()">
-                <b-icon icon="calendar-today"></b-icon>
-                <span>Today</span>
-            </button>
-              <button class="button is-danger"
-                @click="task.due = null">
-                <b-icon icon="close"></b-icon>
-                <span>None</span>
-            </button></b-datepicker></b-field>
+        <tehnytDueDate :task="task"></tehnytDueDate>
       </div>
 
       <div class="column">
-        <div v-if="index==0" class="dropBetweenTask"></div>
+        <!-- <div v-if="index==0" class="dropBetweenTask"></div> -->
         <!---Adjust vertical alignement -->
         <!--     <div @click="showTagEditor = !showTagEditor"> -->
-        <b-field grouped ellipsis>
+        <!-- <b-field grouped ellipsis> -->
           <!-- Show only 1 tag and then edit cause I don't know how to stop tags from overflowing/wrapping -->
-          <div
+          <!-- <div
             @click="showTagEditorFunction(index)"
             v-for="(tag, tagIndex) in task.tags.slice(0,2)"
             :key="tag"
             class="control"
             style="cursor: pointer;"
-          >
+          > -->
             <!-- Show first tag and then more-button -->
-            <b-tag v-if="tagIndex === 0" type="is-primary">{{tag}}</b-tag>
+            <!-- <b-tag v-if="tagIndex === 0" type="is-primary">{{tag}}</b-tag>
             <b-tooltip :label="listTags(task.tags)">
               <b-tag v-if="tagIndex === 1">more...</b-tag>
-            </b-tooltip>
-            <!-- <b-tag v-if="task.tags.length === 1">edit...</b-tag> -->
-          </div>
+            </b-tooltip> -->
+          <!-- </div>
           <div
             v-if="task.tags.length === 0"
             class="control"
             @click="showTagEditorFunction(index)"
             style="cursor: pointer;"
-          >
+          > -->
             <!-- If no tags just ask to add -->
-            <b-tag>click to add</b-tag>
+            <!-- <b-tag>click to add</b-tag>
           </div>
         </b-field>
         <b-field ellipsis>
@@ -213,12 +165,12 @@
             placeholder="Tags"
             @add="addTagsToTagList"
           >></b-taginput>
-        </b-field>
+        </b-field> -->
       </div>
       <div class="column">
-        <div v-if="index==0" class="dropBetweenTask"></div>
+        <!-- <div v-if="index==0" class="dropBetweenTask"></div> -->
         <!---Adjust vertical alignement -->
-        {{task.importance}}
+        <!-- {{task.importance}} -->
       </div>
     </div>
     <!-- Original: <div  v-for="(task, index) in taskList" class="columns">
@@ -226,10 +178,6 @@
 
     </div>-->
         <button @click="addTasks()">Add tasks</button>
-    Tasklist: {{taskList[0].flagged}}
-    <br>
-    Filtered: {{filteredTaskList[0].flagged}}
-    <br>
     <!-- Importance: {{taskListWithImportance[0].flagged}} -->
     Tasklist:
     <pre>{{taskList}}</pre>
@@ -244,6 +192,14 @@
 <script>
 import moment from "moment";
 import tehnytShowIcon from "./tehnytShowIcon.vue";
+import tehnytDeleteTask from "./tehnytDeleteTask.vue";
+import tehnytForceNextAction from "./tehnytForceNextAction.vue";
+import tehnytFlag from "./tehnytFlag.vue";
+import tehnytcompleteChildren from "./tehnytcompleteChildren.vue";
+import tehnytTaskName from "./tehnytTaskName.vue";
+import tehnytStartDate from "./tehnytStartDate.vue";
+import tehnytDueDate from "./tehnytDueDate.vue";
+
 export default {
   // updated(){
   // const allEqual = arr => arr.every( v => v === arr[0] )
@@ -252,7 +208,14 @@ export default {
   //   console.log("hej")
   // },
   components: {
-    tehnytShowIcon
+    tehnytShowIcon,
+    tehnytDeleteTask,
+    tehnytForceNextAction,
+    tehnytFlag,
+    tehnytcompleteChildren,
+    tehnytTaskName,
+    tehnytStartDate,
+    tehnytDueDate
   },
   data() {
     return {
@@ -281,7 +244,7 @@ export default {
         notDroppable: false,
         tags: [],
         importance: 0,
-        id: this.newId
+        id: 99
       },
       taskList: [
         {
@@ -520,7 +483,9 @@ export default {
   methods: {
     addTasks(){
       for (let i=0;i < 500;i++){
-        this.taskList.splice(this.taskList.length, 0, { ...this.templateTask });
+        this.taskList.push({ ...this.templateTask })
+        this.taskList[this.taskList.length-1].taskName = Math.max(...this.taskList.map(r => r.id)) + 1;
+        this.taskList[this.taskList.length-1].id = Math.max(...this.taskList.map(r => r.id)) + 1;
       }
     },
     listTags(tags) {
@@ -902,7 +867,7 @@ export default {
       // Blur when focus lost & opposite
       // const indexInMainList = this.getMainListIndexFromId(taskId);
       // this.temporaryEdit = this.taskList[indexInMainList].taskName;
-      console.log(el.target.value);
+      console.log("hej");
       this.temporaryEdit = el.target.value;
     },
     taskBlurred(taskId, index, el) {
