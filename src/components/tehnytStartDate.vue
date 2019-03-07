@@ -1,5 +1,7 @@
 <template>
-<b-field><b-datepicker v-model="task.start"
+<div>
+  <div v-if="!showDatePicker" @click="showDatePicker = true">{{showRelativeDate(task, 'start')}}</div>
+<b-field v-else><b-datepicker @input="showDatePicker = false" v-model="task.start"
             :first-day-of-week="1" :date-formatter="(date) => (showRelativeDate(task, 'start'))"   >
             
              <button class="button is-primary"
@@ -13,12 +15,18 @@
                 <span>None</span>
             </button></b-datepicker></b-field>
 
+</div>
 </template>
 <script>
 import moment from "moment";
 export default {
     props: ['task']
 ,
+data () {
+  return {
+ showDatePicker: false
+  }
+},
 methods: {
   showRelativeDate(task, type) {
       let a;
@@ -28,6 +36,9 @@ methods: {
           .fromNow();
       } else {
         a = moment(task[type]).format("MMM Do YY");
+      }
+      if (a == "Invalid date") {
+        a = "-";
       }
       return a;
     },

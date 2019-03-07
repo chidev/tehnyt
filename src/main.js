@@ -5,7 +5,9 @@ import 'buefy/dist/buefy.css'
 import moment from 'moment'
 import VueDragDrop from 'vue-drag-drop'
 
-Vue.config.productionTip = false
+Vue.config.productionTip = true
+Vue.config.devtools = true
+// Vue.config.performance = true
 
 Vue.use(Buefy)
 Vue.use(VueDragDrop)

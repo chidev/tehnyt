@@ -1,12 +1,12 @@
 <template>
-               <b-tooltip label="Complete task">
+               <!-- <b-tooltip label="Complete task"> -->
             <span class="icon">
               <i
                 @click="$emit('completeChildren')"
                  :class="['fas fa-check',{'has-text-success': task.done }]"
               ></i>
             </span>
-          </b-tooltip>
+          <!-- </b-tooltip> -->
 </template>
 <script>
 export default {
