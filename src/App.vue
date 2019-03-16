@@ -1,7 +1,7 @@
 <template>
-  <div id="app" class="container">
+  <v-app>
     <ListTasks/>
-  </div>
+  </v-app>
 </template>
 
 <script>

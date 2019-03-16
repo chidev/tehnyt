@@ -1,11 +1,9 @@
 <template>
            <!-- <b-tooltip label="Toggle flag"> -->
-            <span class="icon">
-              <i
+              <v-icon small
                 @click="$emit('clickedFlag')"
-                :class="['fas fa-flag',{'has-text-danger': task.flagged }]"
-              ></i>
-            </span>
+                 :class="{'flagged-style' : task.flagged}"
+              >fas fa-flag</v-icon>
           <!-- </b-tooltip> -->
 </template>
 <script>
@@ -13,3 +11,13 @@ export default {
     props: ['task']
 }
 </script>
+
+<style scoped>
+  .flagged-style {
+    color: #D50000 !important
+  }
+</style>
+
+
+</script>
+// :class="['fas fa-check',{'has-text-success': task.done }]"
