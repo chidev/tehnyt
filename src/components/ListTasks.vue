@@ -1,5 +1,37 @@
 <template>
     <v-content>
+       <v-dialog
+      v-model="dialog"
+      max-width="290"
+    >
+      <v-card>
+        <v-card-title class="headline">Use Google's location service?</v-card-title>
+
+        <v-card-text>
+          Let Google help apps determine location. This means sending anonymous location data to Google, even when no apps are running.
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn
+            color="green darken-1"
+            flat="flat"
+            @click="dialog = false"
+          >
+            Disagree
+          </v-btn>
+
+          <v-btn
+            color="green darken-1"
+            flat="flat"
+            @click="dialog = false"
+          >
+            Agree
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
             <v-container fluid>
                       <v-layout align-start justify-space-around row>
      <v-flex> <v-btn @click="addTasks()">Add tasks</v-btn>
@@ -51,7 +83,7 @@
           align-start
           justify-space-around
           row
-          v-for="(task, index) in filteredTaskList"
+          v-for="(task, index) in taskListWithImportance"
           :key="task.id"
         >
           <v-flex xs1>
@@ -64,12 +96,12 @@
                                  <v-icon small>fas fa-grip-vertical</v-icon>
                <tehnytForceNextAction @clickedNext="clickedNext(task.id)" :task="task"></tehnytForceNextAction>
                 <tehnytFlag @clickedFlag="clickedFlag(task.id)" :task="task"></tehnytFlag>
-                <tehnytcompleteChildren @completeChildren="completeChildren(task.id)" :task="task"></tehnytcompleteChildren>
+                <tehnytcompleteChildren @completeChildren="completeChildren(task.taskIndexInMainList)" :task="task"></tehnytcompleteChildren>
                 <tehnytShowNameInput
                   :ref="'inputField' + index"
                   :task="task"
                   :index="index"
-                  @setActivateThisFieldIndex="setActivateThisFieldIndex(index)"
+                  @setActiveTask="setActiveTask(task.id)"
                   @tabPress="tabPress"
                   @inputWasFocused="inputWasFocused"
                   @arrowPress="arrowPress"
@@ -112,7 +144,7 @@
         <br>Filtered:
         <pre>{{filteredTaskList}}</pre>
         <br>Importance:
-        <!-- <pre>{{taskListWithImportance}}</pre> -->
+        <pre>{{taskListWithImportance}}</pre>
         <br>
       </v-container>
     </v-content>
@@ -120,17 +152,19 @@
 
 <script>
 import moment from "moment";
-import tehnytShowIcon from "./tehnytShowIcon.vue";
-import tehnytDeleteTask from "./tehnytDeleteTask.vue";
-import tehnytForceNextAction from "./tehnytForceNextAction.vue";
-import tehnytFlag from "./tehnytFlag.vue";
-import tehnytcompleteChildren from "./tehnytcompleteChildren.vue";
-import tehnytTaskName from "./tehnytTaskName.vue";
-import tehnytStartDate from "./tehnytStartDate.vue";
-import tehnytDueDate from "./tehnytDueDate.vue";
-import tehnytShowNameInput from "./tehnytShowNameInput.vue";
-import tehnytShowJustName from "./tehnytShowJustName.vue";
-import tehnytChangeTags from "./tehnytChangeTags.vue";
+import tehnytShowIcon from "./ListTasks/tehnytShowIcon.vue";
+import tehnytDeleteTask from "./ListTasks/tehnytDeleteTask.vue";
+import tehnytForceNextAction from "./ListTasks/tehnytForceNextAction.vue";
+import tehnytFlag from "./ListTasks/tehnytFlag.vue";
+import tehnytcompleteChildren from "./ListTasks/tehnytcompleteChildren.vue";
+import tehnytTaskName from "./ListTasks/tehnytTaskName.vue";
+import tehnytStartDate from "./ListTasks/tehnytStartDate.vue";
+import tehnytDueDate from "./ListTasks/tehnytDueDate.vue";
+import tehnytShowNameInput from "./ListTasks/tehnytShowNameInput.vue";
+import tehnytShowJustName from "./ListTasks/tehnytShowJustName.vue";
+import tehnytChangeTags from "./ListTasks/tehnytChangeTags.vue";
+import {mapGetters} from 'vuex';
+import {mapMutations} from 'vuex';
 
 export default {
   // updated(){
@@ -153,6 +187,7 @@ export default {
   },
   data() {
     return {
+      dialog: false,
       activateThisFieldIndex: -1,
       batchEdit: "Off",
       value: 2,
@@ -178,164 +213,9 @@ export default {
         notDroppable: false,
         tags: [],
         importance: 0,
-        id: 99
-      },
-      taskList: [
-        {
-          taskName: "1: flagged and next",
-          indent: 0,
-          done: false,
-          startDate: "2018-11-10",
-          dueDate: "2018-11-10",
-          flagged: false,
-          forceNext: true,
-          isNext: true,
-          notDroppable: false,
-          tags: [],
-          importance: 0,
-          id: 435353245
-        },
-        {
-          taskName: "2: Has flag",
-          indent: 0,
-          done: false,
-          startDate: "2018-11-10",
-          dueDate: "2018-11-18",
-          flagged: true,
-          forceNext: false,
-          isNext: false,
-          notDroppable: false,
-          tags: ["Hello"],
-          importance: 0,
-          id: 245325432543253
-        },
-        {
-          taskName: "3: I have 2 children",
-          indent: 0,
-          done: false,
-          startDate: "2018-11-10",
-          dueDate: "2018-11-25",
-          flagged: false,
-          forceNext: false,
-          isNext: false,
-          notDroppable: false,
-          tags: [],
-          importance: 0,
-          id: 423525435534
-        },
-        {
-          taskName: "3.1 Child uno",
-          indent: 1,
-          done: false,
-          startDate: "2018-11-10",
-          dueDate: "2018-11-25",
-          flagged: false,
-          forceNext: false,
-          isNext: false,
-          notDroppable: false,
-          tags: [],
-          importance: 0,
-          id: 9234823432
-        },
-        {
-          taskName: "3.2 Child due",
-          indent: 1,
-          done: false,
-          startDate: "2018-11-10",
-          dueDate: "2018-11-28",
-          flagged: false,
-          forceNext: false,
-          isNext: false,
-          notDroppable: false,
-          tags: [],
-          importance: 0,
-          id: 92384324832
-        },
-        {
-          taskName: "4. I have 2 children",
-          indent: 0,
-          done: false,
-          startDate: "2018-11-10",
-          dueDate: "2018-12-02",
-          flagged: false,
-          forceNext: false,
-          isNext: false,
-          notDroppable: false,
-          tags: [],
-          importance: 0,
-          id: 235436546456
-        },
-        {
-          taskName: "4.1 Child uno",
-          indent: 1,
-          done: false,
-          startDate: "2018-11-10",
-          dueDate: "2018-12-18",
-          flagged: false,
-          forceNext: false,
-          isNext: false,
-          notDroppable: false,
-          tags: ["Work", "Family", "Friends", "Home", "Evening"],
-          importance: 0,
-          id: 5262562456234
-        },
-        {
-          taskName: "4.2 Child with tags",
-          indent: 1,
-          done: false,
-          startDate: "2018-11-10",
-          dueDate: "2019-01-18",
-          flagged: false,
-          forceNext: false,
-          isNext: false,
-          notDroppable: false,
-          tags: ["Work", "Family", "Friends", "Home", "Evening"],
-          importance: 0,
-          id: 5243549484874
-        },
-        {
-          taskName: "5 indent",
-          indent: 0,
-          done: false,
-          startDate: "2018-11-10",
-          dueDate: "2018-11-05",
-          flagged: false,
-          forceNext: false,
-          isNext: false,
-          notDroppable: false,
-          tags: [],
-          importance: 0,
-          id: 4329324222393
-        },
-        {
-          taskName: "6 Future start",
-          indent: 0,
-          done: false,
-          startDate: "2019-11-10",
-          dueDate: "2018-11-05",
-          flagged: false,
-          forceNext: false,
-          isNext: false,
-          notDroppable: false,
-          tags: [],
-          importance: 0,
-          id: 432932482393
-        },
-        {
-          taskName: "7 done",
-          indent: 0,
-          done: true,
-          startDate: "2018-11-10",
-          dueDate: "2018-11-05",
-          flagged: false,
-          forceNext: false,
-          isNext: false,
-          notDroppable: false,
-          tags: [],
-          importance: 0,
-          id: 432932482333
-        }
-      ]
+        id: 99,
+            taskIndexInMainList: null
+      }
     };
   },
   //   watch: {
@@ -366,28 +246,33 @@ export default {
     //     return {...x, importance: this.calculateImportance(x)}
     //   })
     // },
-    // taskListWithImportance: {
-    //   get() {
-    //     // Calculate importance per task
-    //     return this.taskList.map(x => ({
-    //       ...x,
-    //       importance: this.calculateImportance(x)
-    //     }));
-    //   },
-    //   set(val) {
-    //     // Update task name based on input
-    //     let indexInMainList = this.getMainListIndexFromId(
-    //       this.filteredTaskList[val.index].id
-    //     );
-    //     this.taskList[indexInMainList].taskName = val.value;
-    //   }
-    // },
+    taskListWithImportance: {
+      get() {
+        // Calculate importance per task
+        return this.filteredTaskList.map(x => ({
+          ...x,
+          importance: this.calculateImportance(x),
+          taskIndexInMainList:  this.getMainListIndexFromId(x.id
+        )
+        }));
+      },
+      set(val) {
+        // Update task name based on input
+        // let indexInMainList = this.getMainListIndexFromId(
+        //   this.filteredTaskList[val.index].id
+        // );
+        this.taskList[val.taskIndexInMainList].taskName = val.value;
+      }
+    },
     // taskListWasChanged() {
     //   return [
     //     this.taskList.reduce((a, { indent }) => a + indent, 0),
     //     this.taskList.filter(item => item.done == false).length
     //   ]; // if a task is indented or done/undone then is true
     // },
+    ...mapGetters([
+'taskList'
+    ]),
     newId() {
       return this.taskList.length == 0
         ? 1
@@ -418,7 +303,7 @@ export default {
       });
       if (theFilteredOutcome.length > 0) {
         return theFilteredOutcome;
-      } else {
+      } else {  // If there are no tasks, then create a new one
         return [
           {
             ...this.templateTask
@@ -429,7 +314,8 @@ export default {
   },
   methods: {
     checkThings() {
-console.log(this.taskList[0].due.toISOString().substr(0, 10))
+this.UPDATE_A_TASK([0, 'taskName', 'hej'])
+// this.dialog = true
     },
     addTasks() {
       for (let i = 0; i < 500; i++) {
@@ -440,6 +326,10 @@ console.log(this.taskList[0].due.toISOString().substr(0, 10))
           Math.max(...this.taskList.map(r => r.id)) + 1;
       }
     },
+            ...mapMutations([
+'SET_ACTIVE_TASK',
+'UPDATE_A_TASK'
+    ]),
     listTags(tags) {
       return tags.slice(1, tags.length).join(", ");
     },
@@ -629,17 +519,26 @@ console.log(this.taskList[0].due.toISOString().substr(0, 10))
       }
       return a;
     },
-    setActivateThisFieldIndex(index) {
+        setActivateThisFieldIndex(index) {
       this.activateThisFieldIndex = index;
       this.$nextTick(() => this.$refs["inputField" + index][0].$children[0].focus());
     },
-    completeChildren(taskId) {
-      const currentTaskIndex = this.getMainListIndexFromId(taskId);
+    setActiveTask(taskId){
+      const index = this.getMainListIndexFromId(taskId);
+    this.SET_ACTIVE_TASK(index);
+    } ,
+    // setActivateThisFieldIndex(index) {
+      // this.activateThisFieldIndex = index;
+      // this.$nextTick(() => this.$refs["inputField" + index][0].$children[0].focus());
+    // },
+    completeChildren(currentTaskIndex) {
+      // const currentTaskIndex = this.getMainListIndexFromId(taskId);
       // this.taskList[currentTaskIndex].done = !this.taskList[currentTaskIndex].done;
       if (this.taskList[currentTaskIndex].done == false) {
-        let a = this.findNextNonChild(this.taskList, taskId); // complete task + children
+        let a = this.findNextNonChild(this.taskList, this.taskList[currentTaskIndex].id); // complete task + children
         for (let i = a[0]; i < a[1]; i++) {
-          this.taskList[i].done = true;
+          // this.taskList[i].done = true;
+          this.UPDATE_A_TASK([i, 'done', true])
         }
         if (
           this.taskList[a[0]].isNext == true &&
@@ -653,7 +552,8 @@ console.log(this.taskList[0].due.toISOString().substr(0, 10))
             }
         }
       } else {
-        this.taskList[currentTaskIndex].done = false;
+        // this.taskList[currentTaskIndex].done = false;
+        this.UPDATE_A_TASK([currentTaskIndex, 'done', false])
       }
     },
     findNextNonChild(arr, taskId) {
@@ -744,7 +644,6 @@ console.log(this.taskList[0].due.toISOString().substr(0, 10))
       this.recalculateIsNext(indexInMainList);
     },
     arrowPress(taskId, index, value, el) {
-      console.log("arrow")
       // Move up/down between inputs
       if (index + value < 0) {
         // If first task, then keep focused
@@ -765,6 +664,7 @@ console.log(this.taskList[0].due.toISOString().substr(0, 10))
 
       this.temporaryEdit = this.taskList[value + indexInMainList].taskName;
       this.setActivateThisFieldIndex(value + index);
+      this.SET_ACTIVE_TASK(value + indexInMainList);
       // this.$nextTick(() =>
       //   this.$refs["inputField" + (value + index)][0].$el.focus()
       // );

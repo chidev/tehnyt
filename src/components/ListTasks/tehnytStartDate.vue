@@ -7,7 +7,7 @@
     width=290px
       v-model="showDatePicker"
     >
-      <v-date-picker v-model="task.dueDate" @input="showDatePicker = false"></v-date-picker>
+      <v-date-picker   :value="message" @input="handleInput"></v-date-picker>
       <v-btn @click="setToToday">Today</v-btn>
       <v-btn @click="setToTomorrow">Tomorrow</v-btn>
     </v-dialog>
@@ -15,16 +15,16 @@
 </template>
 
 
-<!-- <b-field v-else><b-datepicker @input="showDatePicker = false" v-model="task.due"
-            :first-day-of-week="1" :date-formatter="(date) => (showRelativeDate(task, 'due'))"   >
+<!-- <b-field v-else><b-datepicker @input="showDatePicker = false" v-model="task.start"
+            :first-day-of-week="1" :date-formatter="(date) => (showRelativeDate(task, 'start'))"   >
             
              <button class="button is-primary"
-                @click="task.due = new Date()">
+                @click="task.start = new Date()">
                 <b-icon icon="calendar-today"></b-icon>
                 <span>Today</span>
             </button>
               <button class="button is-danger"
-                @click="task.due = null">
+                @click="task.start = null">
                 <b-icon icon="close"></b-icon>
                 <span>None</span>
             </button></b-datepicker></b-field> -->
@@ -33,6 +33,7 @@
 </template>
 <script>
 import moment from "moment";
+import {mapMutations} from 'vuex';
 export default {
     props: ['task']
 ,
@@ -44,29 +45,47 @@ data () {
 computed: {
   showRelativeDate: function () {
           let a;
-      if (moment(this.task.dueDate).diff(new Date(), "days") < 7) {
-        a = moment(this.task.dueDate)
-          .endOf("day")
+      if (moment(this.task.startDate).diff(new Date(), "days") < 7) {
+        a = moment(this.task.startDate)
+          .startOf("day")
           .fromNow();
       } else {
-        a = moment(this.task.dueDate).format("MMM Do YY");
+        a = moment(this.task.startDate).format("MMM Do YY");
       }
       if (a == "Invalid date") {
         a = "-";
       }
       return a;
-  }
+  },
+   message : {
+      get() {
+        return this.task.startDate
+      }, set(v) {
+        // this.task.taskName=v   
+        this.UPDATE_A_TASK([this.task.taskIndexInMainList, 'startDate', v])
+      }
+    }
   // stringedDate: function () {
-  //   return this.task.due.toISOString().substr(0, 10)
+  //   return this.task.start.toISOString().substr(0, 10)
   // }
 },
 methods: {
+                ...mapMutations([
+'UPDATE_A_TASK'
+    ]),
+    handleInput (v) {
+      // v => message = v
+     this.message = v
+      this.showDatePicker = false
+    },
    setToToday () {
-this.task.dueDate = new Date().toISOString().substr(0, 10)
+// this.task.startDate = new Date().toISOString().substr(0, 10)
+        this.UPDATE_A_TASK([this.task.taskIndexInMainList, 'startDate', new Date().toISOString().substr(0, 10)])
 this.showDatePicker = false
       },
          setToTomorrow () {
-this.task.dueDate = moment(new Date()).add(1, 'days').toISOString().substr(0, 10)
+// this.task.startDate = moment(new Date()).add(1, 'days').toISOString().substr(0, 10)
+this.UPDATE_A_TASK([this.task.taskIndexInMainList, 'startDate', moment(new Date()).add(1, 'days').toISOString().substr(0, 10)])
 this.showDatePicker = false
       }
 }

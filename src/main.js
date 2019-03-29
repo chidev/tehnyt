@@ -5,6 +5,8 @@ import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css' // Ensure you are using css-loader
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
 
+import { store } from './store/store';
+
 Vue.config.productionTip = true
 Vue.config.devtools = true
 // Vue.config.performance = true
@@ -12,5 +14,7 @@ Vue.config.devtools = true
 Vue.use(Vuetify)
 
 new Vue({
-  render: h => h(App),
-}).$mount('#app')
+  el: '#app',
+  store,
+  render: h => h(App)
+})

@@ -5,7 +5,6 @@
       v-model="showTagPicker"
       width=500>
                   <v-combobox
-          v-model="task.tags"
     :items="tagList"
     autofocus
     hide-selected
@@ -18,11 +17,13 @@
     solo
     hide-details
     @input="addTag"
+    :value="message"
   ></v-combobox>
 </v-dialog>
      </div>
 </template>
 <script>
+import {mapMutations} from 'vuex';
 export default {
     props: ['task', 'tagList']
 ,
@@ -40,14 +41,26 @@ computed: {
 a= "..."
           }
       return a;
-  }
+  },
+      message : {
+      get() {
+        return this.task.tags
+      }, set(v) {
+        // this.task.taskName=v   
+        this.UPDATE_A_TASK([this.task.taskIndexInMainList, 'tags', v])
+      }
+    }
   // stringedDate: function () {
   //   return this.task.start.toISOString().substr(0, 10)
   // }
 },
 methods: {
-   addTag () {
-    this.$emit('addTagsToTagList', this.task.tags[this.task.tags.length-1]) 
+                ...mapMutations([
+'UPDATE_A_TASK'
+    ]),
+   addTag (v) {
+     this.message = v
+    this.$emit('addTagsToTagList', v[v.length-1]) 
       }
 }
 //   showRelativeDate(task, type) {

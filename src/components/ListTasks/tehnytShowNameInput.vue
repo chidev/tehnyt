@@ -8,11 +8,14 @@
     @keydown.delete="$emit('deleteTask', task.id, -1, index, $event)"
         @keyup.delete="$emit('deleteKeyUp', $event)"
         @blur="blur(task.id, $event)"
+        @click="$emit('setActiveTask', $event)"
   :value="message" @change="v => message = v"
     :ref="'theInputFieldRef' + index"
   ></v-text-field>  
 </template>
+
 <script>
+import {mapMutations} from 'vuex';
 export default {
   props: ["task", "index"],
     computed: {
@@ -20,19 +23,24 @@ export default {
       get() {
         return this.task.taskName
       }, set(v) {
-        this.task.taskName=v    
+        // this.task.taskName=v   
+        console.log("index" + this.task.taskIndexInMainList)
+        this.SET_TASK_NAME([this.task.taskIndexInMainList, v]); 
       }
     }
   },
 methods: {
+              ...mapMutations([
+'SET_TASK_NAME'
+    ]),
   blur (taskId, event) {
     // this.showNameInput = false;
     this.$emit('taskBlurred', taskId, event) 
   }
-  // clicked (event) {
-  //       this.$emit('setActivateThisFieldIndex', this.index) 
-  //      this.$emit('inputWasFocused', event);
-  //       this.$nextTick(() => this.$refs["theInputFieldRef" + this.index].focus());
+  // clicked (taskId) {
+  //       this.$emit('setActiveTask', taskId) 
+  //     //  this.$emit('inputWasFocused', event);
+  //     //   this.$nextTick(() => this.$refs["theInputFieldRef" + this.index].focus());
   // }
 },
 beforeUpdate() {

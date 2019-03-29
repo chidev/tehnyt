@@ -7,7 +7,7 @@
     width=290px
       v-model="showDatePicker"
     >
-      <v-date-picker v-model="task.startDate" @input="showDatePicker = false"></v-date-picker>
+      <v-date-picker   :value="message" @input="handleInput"></v-date-picker>
       <v-btn @click="setToToday">Today</v-btn>
       <v-btn @click="setToTomorrow">Tomorrow</v-btn>
     </v-dialog>
@@ -33,6 +33,7 @@
 </template>
 <script>
 import moment from "moment";
+import {mapMutations} from 'vuex';
 export default {
     props: ['task']
 ,
@@ -44,29 +45,47 @@ data () {
 computed: {
   showRelativeDate: function () {
           let a;
-      if (moment(this.task.startDate).diff(new Date(), "days") < 7) {
-        a = moment(this.task.startDate)
+      if (moment(this.task.dueDate).diff(new Date(), "days") < 7) {
+        a = moment(this.task.dueDate)
           .startOf("day")
           .fromNow();
       } else {
-        a = moment(this.task.startDate).format("MMM Do YY");
+        a = moment(this.task.dueDate).format("MMM Do YY");
       }
       if (a == "Invalid date") {
         a = "-";
       }
       return a;
-  }
+  },
+   message : {
+      get() {
+        return this.task.dueDate
+      }, set(v) {
+        // this.task.taskName=v   
+        this.UPDATE_A_TASK([this.task.taskIndexInMainList, 'dueDate', v])
+      }
+    }
   // stringedDate: function () {
   //   return this.task.start.toISOString().substr(0, 10)
   // }
 },
 methods: {
+                ...mapMutations([
+'UPDATE_A_TASK'
+    ]),
+    handleInput (v) {
+      // v => message = v
+     this.message = v
+      this.showDatePicker = false
+    },
    setToToday () {
-this.task.startDate = new Date().toISOString().substr(0, 10)
+// this.task.dueDate = new Date().toISOString().substr(0, 10)
+        this.UPDATE_A_TASK([this.task.taskIndexInMainList, 'dueDate', new Date().toISOString().substr(0, 10)])
 this.showDatePicker = false
       },
          setToTomorrow () {
-this.task.startDate = moment(new Date()).add(1, 'days').toISOString().substr(0, 10)
+// this.task.dueDate = moment(new Date()).add(1, 'days').toISOString().substr(0, 10)
+this.UPDATE_A_TASK([this.task.taskIndexInMainList, 'dueDate', moment(new Date()).add(1, 'days').toISOString().substr(0, 10)])
 this.showDatePicker = false
       }
 }
