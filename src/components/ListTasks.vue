@@ -122,7 +122,7 @@
             <tehnytDueDate :task="task"></tehnytDueDate>
           </v-flex>
 
-          <v-flex>
+          <v-flex xs2>
             <tehnytChangeTags :task=task :tagList=tagList @addTagsToTagList="addTagsToTagList"></tehnytChangeTags>
 
     <!-- <template v-slot:no-data>
@@ -200,7 +200,7 @@ export default {
       hasBeenStopped: false,
       subArea: ["hej"],
       newTaskIndexInFullList: "",
-      tagList: ["Family", "Work", "Outside"],
+      tagList: ["Evening", "Family", "Friends", "Hello", "Home", "Outside", "Work"],
       templateTask: {
         taskName: "",
         indent: 0,

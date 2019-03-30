@@ -1,25 +1,31 @@
 <template>
 <div>
-  <div v-if="!showTagPicker" @click="showTagPicker=true">{{ truncatedTagList }}  </div>
-      <v-dialog
+  <!-- <div v-if="!showTagPicker" @click="showTagPicker=true">{{ truncatedTagList }}  </div> -->
+      <!-- <v-dialog
       v-model="showTagPicker"
-      width=500>
+      width=500> -->
                   <v-combobox
     :items="tagList"
-    autofocus
-    hide-selected
     label="Add some tags"
     multiple
-    small-chips
-    deletable-chips
     dense
-    single-line
     solo
+    auto-select-first
     hide-details
     @input="addTag"
     :value="message"
-  ></v-combobox>
-</v-dialog>
+  >
+   <template v-slot:selection="{ item, index }">
+      <v-chip v-if="index < 1">
+        <span>{{ item }}</span>
+      </v-chip>
+      <span
+        v-if="index === 1"
+        class="grey--text caption"
+      >(+{{ message.length - 1 }} others)</span>
+    </template>
+    </v-combobox>
+<!-- </v-dialog> -->
      </div>
 </template>
 <script>
@@ -59,6 +65,8 @@ methods: {
 'UPDATE_A_TASK'
     ]),
    addTag (v) {
+     const newTag = v[v.length-1].charAt(0).toUpperCase() + v[v.length-1].slice(1); // Tag in input must have first character capitalised to match taglist
+     v[v.length-1] = newTag
      this.message = v
     this.$emit('addTagsToTagList', v[v.length-1]) 
       }
