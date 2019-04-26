@@ -1,131 +1,88 @@
 <template>
-    <v-content>
-       <v-dialog
-      v-model="dialog"
-      max-width="290"
-    >
-      <v-card>
-        <v-card-title class="headline">Use Google's location service?</v-card-title>
+  <div class="container is-fluid">
+    <div class="columns">
+      <div class="column">
+        <div class="button" @click="addTasks()">Add tasks</div>
+       <drop  @drop="droppedOnTask"> <div class="button" @click="checkThings">Check things</div></drop>
+      </div>
 
-        <v-card-text>
-          Let Google help apps determine location. This means sending anonymous location data to Google, even when no apps are running.
-        </v-card-text>
+      <div class="column">
+        Show future tasks
+        <br>
+        <b-switch v-model="showFuture" true-value="Yes" false-value="No">{{ showFuture }}</b-switch>
+      </div>
+      <div class="column">
+        Show completed tasks
+        <b-switch v-model="showDone" true-value="Yes" false-value="No">{{ showDone }}</b-switch>
+      </div>
+      <div class="column">
+        Show NextActions only
+        <b-switch v-model="showOnlyNext" true-value="Yes" false-value="No">{{ showOnlyNext }}</b-switch>
+      </div>
+      <div class="column">
+        Batch edit
+        <br>
+        <b-switch v-model="batchEdit" true-value="On" false-value="Off">{{ batchEdit }}</b-switch>
+      </div>
+    </div>
+    <div class="columns">
+      <div class="column"></div>
+      <div class="column">Task</div>
+      <div class="column">Start-date</div>
+      <div class="column">Due-date</div>
+      <div class="column">Tags</div>
+      <div class="column">Importance</div>
+    </div>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
+ <!-- <transition-group type="transition" :name="!drag ? 'flip-list' : null"> -->
+   <!-- <virtual-list :size="48" :remain="8" :bench="16"> -->
+     <!-- <draggable  v-model="taskListWithImportance"  v-bind="dragOptions" @change="changedSortOrder" @start="drag = true"
+@end="drag = false"> -->
+    <div class="columns" v-for="(task, index) in taskListWithImportance" :key="task.id">
+     <drop @drop="droppedOnTask(task.taskIndexInMainList, ...arguments)">
+      <div
+        class="box is-paddingless is-flex"
+        :style="'margin-left: ' + task.indent * 20 + 'px; flex-grow: 1'"
+      >
+        <div class="column">
+          <tehnytShowIcon v-if="batchEdit == 'On'" :task="task"></tehnytShowIcon>
+          <tehnytDeleteTask @deleteTask="deleteTask(task.id, 'trashcan')"></tehnytDeleteTask>
+        </div>
+        <b-field class="column is-two-fifths">
+         <drag :tag="'span'" :transfer-data="task.taskIndexInMainList"><b-icon pack="fas" icon="grip-vertical" size="is-small"></b-icon></drag> 
+          <tehnytForceNextAction @clickedNext="clickedNext(task.id)" :task="task"></tehnytForceNextAction>
+          <tehnytFlag @clickedFlag="clickedFlag(task.id)" :task="task"></tehnytFlag>
+          <tehnytcompleteChildren
+            @completeChildren="completeChildren(task.taskIndexInMainList)"
+            :task="task"
+          ></tehnytcompleteChildren>
+          <tehnytShowNameInput
+            :ref="'inputField' + index"
+            :index="task.taskIndexInMainList"
+            @setActiveTask="setActiveTask(task.id)"
+            @tabPress="tabPress"
+            @inputWasFocused="inputWasFocused"
+            @arrowPress="arrowPress"
+            @pressedEsc="pressedEsc"
+            @pressedEnter="pressedEnter"
+            @deleteTask="deleteTask"
+            @deleteKeyUp="fliphasBeenStopped"
+            @taskBlurred="taskBlurred"
+          ></tehnytShowNameInput>
+          <!-- <tehnytShowJustName v-else :taskname="task.taskName" @setActivateThisFieldIndex="setActivateThisFieldIndex(index)"></tehnytShowJustName> -->
+        </b-field>
 
-          <v-btn
-            color="green darken-1"
-            flat="flat"
-            @click="dialog = false"
-          >
-            Disagree
-          </v-btn>
+        <div class="column">
+          <tehnytStartDate :task="task"></tehnytStartDate>
+        </div>
+        <div class="column">
+          <tehnytDueDate :task="task"></tehnytDueDate>
+        </div>
 
-          <v-btn
-            color="green darken-1"
-            flat="flat"
-            @click="dialog = false"
-          >
-            Agree
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-            <v-container fluid>
-                      <v-layout align-start justify-space-around row>
-     <v-flex> <v-btn @click="addTasks()">Add tasks</v-btn>
-      <v-btn @click="checkThings">Check things</v-btn></v-flex>
+        <div class="column">
+          <tehnytChangeTags :task="task" :tagList="tagList" @addTagsToTagList="addTagsToTagList"></tehnytChangeTags>
 
-
-          <v-flex>Show future tasks
-            <v-switch
-              v-model="showFuture"
-              true-value="Yes"
-              false-value="No"
-              color="green"
-            >{{ showFuture }}</v-switch>
-          </v-flex>
-          <v-flex xs-12>Show completed tasks
-            <v-switch
-              v-model="showDone"
-              true-value="Yes"
-              false-value="No"
-              color="green"
-            >{{ showDone }}</v-switch>
-          </v-flex>
-          <v-flex xs-12>Show NextActions only
-            <v-switch
-              v-model="showOnlyNext"
-              true-value="Yes"
-              false-value="No"
-              color="green"
-            >{{ showOnlyNext }}</v-switch>
-          </v-flex>
-          <v-flex xs-12>Batch edit
-            <v-switch
-              v-model="batchEdit"
-              true-value="On"
-              false-value="Off"
-              color="green"
-            >{{ batchEdit }}</v-switch>
-          </v-flex>
-        </v-layout>
-        <v-layout align-center justify-start row>
-          <v-flex xs1></v-flex>
-          <v-flex xs4>Task</v-flex>
-          <v-flex>Start-date</v-flex>
-          <v-flex>Due-date</v-flex>
-          <v-flex>Tags</v-flex>
-          <v-flex>Importance</v-flex>
-        </v-layout>
-        <v-layout
-          align-start
-          justify-space-around
-          row
-          v-for="(task, index) in taskListWithImportance"
-          :key="task.id"
-        >
-          <v-flex xs1>
-            <!-- <tehnytShowIcon v-if="batchEdit == 'On'" :task="task"></tehnytShowIcon>
-            <tehnytDeleteTask @deleteTask="deleteTask(task.id, 'trashcan')"></tehnytDeleteTask> -->
-          </v-flex>
-          <v-flex xs4>
-            <v-card :style="'margin-left: ' + task.indent * 20 + 'px'">
-              <v-layout pa-0 mt-1 align-center justify-start row >
-                                 <v-icon small>fas fa-grip-vertical</v-icon>
-               <tehnytForceNextAction @clickedNext="clickedNext(task.id)" :task="task"></tehnytForceNextAction>
-                <tehnytFlag @clickedFlag="clickedFlag(task.id)" :task="task"></tehnytFlag>
-                <tehnytcompleteChildren @completeChildren="completeChildren(task.taskIndexInMainList)" :task="task"></tehnytcompleteChildren>
-                <tehnytShowNameInput
-                  :ref="'inputField' + index"
-                  :task="task"
-                  :index="index"
-                  @setActiveTask="setActiveTask(task.id)"
-                  @tabPress="tabPress"
-                  @inputWasFocused="inputWasFocused"
-                  @arrowPress="arrowPress"
-                  @pressedEsc="pressedEsc"
-                  @pressedEnter="pressedEnter"
-                  @deleteTask="deleteTask"
-                  @deleteKeyUp="fliphasBeenStopped"
-                  @taskBlurred="taskBlurred"
-                ></tehnytShowNameInput> 
-                <!-- <tehnytShowJustName v-else :taskname="task.taskName" @setActivateThisFieldIndex="setActivateThisFieldIndex(index)"></tehnytShowJustName> -->
-              </v-layout  >
-            </v-card>
-          </v-flex>
-          <v-flex>
-            <tehnytStartDate :task="task"></tehnytStartDate>
-          </v-flex>
-          <v-flex>
-            <tehnytDueDate :task="task"></tehnytDueDate>
-          </v-flex>
-
-          <v-flex xs2>
-            <tehnytChangeTags :task=task :tagList=tagList @addTagsToTagList="addTagsToTagList"></tehnytChangeTags>
-
-    <!-- <template v-slot:no-data>
+          <!-- <template v-slot:no-data>
       <v-list-tile>
         <v-list-tile-content>
           <v-list-tile-title>
@@ -133,25 +90,32 @@
           </v-list-tile-title>
         </v-list-tile-content>
       </v-list-tile>
-    </template> -->
-  <!-- </v-combobox> -->
-  </v-flex>
-          <v-flex>{{task.importance}}</v-flex>
-        </v-layout>
-        <!-- Importance: {{taskListWithImportance[0].flagged}} -->
-        Tasklist:
-        <pre>{{taskList}}</pre>
-        <br>Filtered:
-        <pre>{{filteredTaskList}}</pre>
-        <br>Importance:
-        <pre>{{taskListWithImportance}}</pre>
-        <br>
-      </v-container>
-    </v-content>
+          </template>-->
+          <!-- </v-combobox> -->
+        </div>
+        <div class="column">{{task.importance}}</div>
+      </div>
+      </drop>
+    </div>
+    <!-- </draggable> -->
+    <!-- </virtual-list> -->
+ <!-- </transition-group> -->
+
+    <!-- Importance: {{taskListWithImportance[0].flagged}} -->
+    Tasklist:
+    <pre>{{taskList}}</pre>
+    <br>Filtered:
+    <pre>{{filteredTaskList}}</pre>
+    <br>Importance:
+    <pre>{{taskListWithImportance}}</pre>
+    <br>
+  </div>
 </template>
 
 <script>
+// import virtualList from 'vue-virtual-scroll-list'
 import moment from "moment";
+// import draggable from "vuedraggable";
 import tehnytShowIcon from "./ListTasks/tehnytShowIcon.vue";
 import tehnytDeleteTask from "./ListTasks/tehnytDeleteTask.vue";
 import tehnytForceNextAction from "./ListTasks/tehnytForceNextAction.vue";
@@ -163,8 +127,8 @@ import tehnytDueDate from "./ListTasks/tehnytDueDate.vue";
 import tehnytShowNameInput from "./ListTasks/tehnytShowNameInput.vue";
 import tehnytShowJustName from "./ListTasks/tehnytShowJustName.vue";
 import tehnytChangeTags from "./ListTasks/tehnytChangeTags.vue";
-import {mapGetters} from 'vuex';
-import {mapMutations} from 'vuex';
+import { mapGetters } from "vuex";
+import { mapMutations } from "vuex";
 
 export default {
   // updated(){
@@ -184,9 +148,12 @@ export default {
     tehnytShowNameInput,
     tehnytShowJustName,
     tehnytChangeTags
+    // draggable,
+    // 'virtual-list': virtualList
   },
   data() {
     return {
+      drag: false,
       dialog: false,
       activateThisFieldIndex: -1,
       batchEdit: "Off",
@@ -200,7 +167,15 @@ export default {
       hasBeenStopped: false,
       subArea: ["hej"],
       newTaskIndexInFullList: "",
-      tagList: ["Evening", "Family", "Friends", "Hello", "Home", "Outside", "Work"],
+      tagList: [
+        "Evening",
+        "Family",
+        "Friends",
+        "Hello",
+        "Home",
+        "Outside",
+        "Work"
+      ],
       templateTask: {
         taskName: "",
         indent: 0,
@@ -214,7 +189,7 @@ export default {
         tags: [],
         importance: 0,
         id: 99,
-            taskIndexInMainList: null
+        taskIndexInMainList: null
       }
     };
   },
@@ -246,14 +221,19 @@ export default {
     //     return {...x, importance: this.calculateImportance(x)}
     //   })
     // },
+     dragOptions() {
+      return {
+        animation: 200,
+        ghostClass: "ghost"
+      };
+    },
     taskListWithImportance: {
       get() {
         // Calculate importance per task
         return this.filteredTaskList.map(x => ({
           ...x,
           importance: this.calculateImportance(x),
-          taskIndexInMainList:  this.getMainListIndexFromId(x.id
-        )
+          taskIndexInMainList: this.getMainListIndexFromId(x.id)
         }));
       },
       set(val) {
@@ -261,7 +241,11 @@ export default {
         // let indexInMainList = this.getMainListIndexFromId(
         //   this.filteredTaskList[val.index].id
         // );
+        if(this.drag == true) {
+
+        } else {
         this.taskList[val.taskIndexInMainList].taskName = val.value;
+        }
       }
     },
     // taskListWasChanged() {
@@ -270,9 +254,7 @@ export default {
     //     this.taskList.filter(item => item.done == false).length
     //   ]; // if a task is indented or done/undone then is true
     // },
-    ...mapGetters([
-'taskList'
-    ]),
+    ...mapGetters(["taskList"]),
     newId() {
       return this.taskList.length == 0
         ? 1
@@ -286,7 +268,8 @@ export default {
             shouldBeZeroForTrue = shouldBeZeroForTrue + task.startDate ? 1 : 0; // Empty start date should be shown
           } else {
             shouldBeZeroForTrue =
-              shouldBeZeroForTrue + (moment(task.startDate).isBefore() !== true); // Future start date
+              shouldBeZeroForTrue +
+              (moment(task.startDate).isBefore() !== true); // Future start date
           }
         }
         if (this.showDone === "No") {
@@ -303,7 +286,8 @@ export default {
       });
       if (theFilteredOutcome.length > 0) {
         return theFilteredOutcome;
-      } else {  // If there are no tasks, then create a new one
+      } else {
+        // If there are no tasks, then create a new one
         return [
           {
             ...this.templateTask
@@ -314,8 +298,8 @@ export default {
   },
   methods: {
     checkThings() {
-this.UPDATE_A_TASK([0, 'taskName', 'hej'])
-// this.dialog = true
+      console.log(this.taskList);
+      // this.dialog = true
     },
     addTasks() {
       for (let i = 0; i < 500; i++) {
@@ -326,10 +310,7 @@ this.UPDATE_A_TASK([0, 'taskName', 'hej'])
           Math.max(...this.taskList.map(r => r.id)) + 1;
       }
     },
-            ...mapMutations([
-'SET_ACTIVE_TASK',
-'UPDATE_A_TASK'
-    ]),
+    ...mapMutations(["SET_ACTIVE_TASK", "UPDATE_A_TASK", "UPDATE_WHOLE_LIST"]),
     listTags(tags) {
       return tags.slice(1, tags.length).join(", ");
     },
@@ -346,6 +327,9 @@ this.UPDATE_A_TASK([0, 'taskName', 'hej'])
       if (this.tagList.indexOf(newTag) === -1) {
         this.tagList.push(newTag);
       }
+    },
+        changedSortOrder(movedInfo){
+this.UPDATE_WHOLE_LIST(this.moveItemInArrayFromIndexToIndex(this.taskList, movedInfo.moved.oldIndex, movedInfo.moved.newIndex))
     },
     clickedFlag(taskId) {
       const indexInMainList = this.getMainListIndexFromId(taskId);
@@ -369,7 +353,6 @@ this.UPDATE_A_TASK([0, 'taskName', 'hej'])
           this.hasBeenStopped == false &&
           event.key == "Backspace"
         ) {
-          console.log("kom in");
           event.preventDefault();
           // this.hasBeenStopped = true;
         }
@@ -395,6 +378,47 @@ this.UPDATE_A_TASK([0, 'taskName', 'hej'])
         // }
 
         // if (this.filteredTaskList[index].taskName.length == "") {this.tasksDeleted = false}
+      }
+    },
+    droppedOnTask(droppedOn, droppedTask){
+      console.log("Dropped on: " + droppedOn + ", Dropped task: " + droppedTask)
+       let movedTaskSpan = this.findNextNonChild(this.taskList, this.taskList[droppedTask].id);
+      const movedTaskIndent = this.taskList[movedTaskSpan[0]].indent;
+      let newBaseIndent = 0;
+      if (droppedOn == -1) { // Move to very top
+        for (let i = movedTaskSpan[0]; i < movedTaskSpan[1]; i++) { //Indent all tasks to new level (which in this case is 0)
+        //  this.taskList[i].indent = this.taskList[i].indent - movedTaskIndent + newBaseIndent;
+         this.UPDATE_A_TASK(i, "indent", this.taskList[i].indent - movedTaskIndent + newBaseIndent)
+       }
+       for (let i = 0; i < (movedTaskSpan[1] - movedTaskSpan[0]); i++) {
+        this.UPDATE_WHOLE_LIST(this.moveItemInArrayFromIndexToIndex(this.taskList, movedTaskSpan[0] + i, 0 + i));
+      }
+      this.draggedEnter = -1;
+      this.betweenEnter = -1;
+      droppedOn = 0;
+      return
+    } 
+    newBaseIndent = this.taskList[droppedOn].indent;
+    this.newTaskIndexInFullList = this.getMainListIndexFromFilteredListIndex(droppedOn);
+    if (droppedOn == true) {
+        for (let i = movedTaskSpan[0]; i < movedTaskSpan[1]; i++) { //Indent all tasks to new level
+          this.taskList[i].indent = this.taskList[i].indent - movedTaskIndent + newBaseIndent + 1;
+        }
+      } else {
+        for (let i = movedTaskSpan[0]; i < movedTaskSpan[1]; i++) { //Indent all tasks to new level
+          this.taskList[i].indent = this.taskList[i].indent - movedTaskIndent + newBaseIndent;
+        }
+      }
+      this.draggedEnter = -1;
+      this.betweenEnter = -1;
+      if (droppedOn > droppedTask) { //moving down the list
+        for (let i = movedTaskSpan[0]; i < movedTaskSpan[1]; i++) {
+           this.UPDATE_WHOLE_LIST(this.moveItemInArrayFromIndexToIndex(this.taskList, movedTaskSpan[0], this.newTaskIndexInFullList));
+        }
+      } else { //moving up the list
+        for (let i = 0; i < (movedTaskSpan[1] - movedTaskSpan[0]); i++) {
+          this.UPDATE_WHOLE_LIST(this.moveItemInArrayFromIndexToIndex(this.taskList, movedTaskSpan[0] + i, this.newTaskIndexInFullList + i + 1));
+        }
       }
     },
     fliphasBeenStopped(event) {
@@ -519,26 +543,31 @@ this.UPDATE_A_TASK([0, 'taskName', 'hej'])
       }
       return a;
     },
-        setActivateThisFieldIndex(index) {
+    setActivateThisFieldIndex(index) {
       this.activateThisFieldIndex = index;
-      this.$nextTick(() => this.$refs["inputField" + index][0].$children[0].focus());
+      this.$nextTick(() =>
+        this.$refs["inputField" + index][0].$children[0].focus()
+      );
     },
-    setActiveTask(taskId){
+    setActiveTask(taskId) {
       const index = this.getMainListIndexFromId(taskId);
-    this.SET_ACTIVE_TASK(index);
-    } ,
+      this.SET_ACTIVE_TASK(index);
+    },
     // setActivateThisFieldIndex(index) {
-      // this.activateThisFieldIndex = index;
-      // this.$nextTick(() => this.$refs["inputField" + index][0].$children[0].focus());
+    // this.activateThisFieldIndex = index;
+    // this.$nextTick(() => this.$refs["inputField" + index][0].$children[0].focus());
     // },
     completeChildren(currentTaskIndex) {
       // const currentTaskIndex = this.getMainListIndexFromId(taskId);
       // this.taskList[currentTaskIndex].done = !this.taskList[currentTaskIndex].done;
       if (this.taskList[currentTaskIndex].done == false) {
-        let a = this.findNextNonChild(this.taskList, this.taskList[currentTaskIndex].id); // complete task + children
+        let a = this.findNextNonChild(
+          this.taskList,
+          this.taskList[currentTaskIndex].id
+        ); // complete task + children
         for (let i = a[0]; i < a[1]; i++) {
           // this.taskList[i].done = true;
-          this.UPDATE_A_TASK([i, 'done', true])
+          this.UPDATE_A_TASK([i, "done", true]);
         }
         if (
           this.taskList[a[0]].isNext == true &&
@@ -553,7 +582,7 @@ this.UPDATE_A_TASK([0, 'taskName', 'hej'])
         }
       } else {
         // this.taskList[currentTaskIndex].done = false;
-        this.UPDATE_A_TASK([currentTaskIndex, 'done', false])
+        this.UPDATE_A_TASK([currentTaskIndex, "done", false]);
       }
     },
     findNextNonChild(arr, taskId) {
@@ -757,7 +786,7 @@ this.UPDATE_A_TASK([0, 'taskName', 'hej'])
   margin-left: 10px;
 }
 
-input[type="text"] {
+/* input[type="text"] {
   border: none;
   background: transparent;
   font-family: "Avenir", Helvetica, Arial, sans-serif;
@@ -769,7 +798,7 @@ input[type="text"] {
   line-height: 1.5em;
   text-rendering: optimizeLegibility;
   flex-grow: 1;
-}
+} */
 
 input[type="checkbox"] {
   cursor: pointer;
@@ -800,5 +829,16 @@ input[type="checkbox"] {
 .tooltip:not([data-label=""]):hover:before,
 .tooltip:not([data-label=""]):hover:after {
   transition-delay: 0.5s;
+}
+
+.flip-list-move {
+  /* transition: transform 0.5s;  Add this back when/if render is quicker as now there is a delay between render and animation*/
+}
+.no-move {
+  transition: transform 0s;
+}
+.ghost {
+  opacity: 0.5;
+  background: #c8ebfb;
 }
 </style>

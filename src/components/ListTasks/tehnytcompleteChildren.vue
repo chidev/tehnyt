@@ -1,10 +1,12 @@
 <template>
                <!-- <b-tooltip label="Complete task"> -->
-          
-              <v-icon small
-                @click="$emit('completeChildren')"
-                 :class="{'completed-style' : task.done}"
-              >fas fa-check</v-icon>
+                          <b-icon
+    pack="fas"
+    size="is-small"
+    icon="check"
+    @click.native="$emit('completeChildren')"
+    :class="{'completed-style' : task.done}"
+  ></b-icon>
           <!-- </b-tooltip> -->
 </template>
 <script>

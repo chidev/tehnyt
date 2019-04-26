@@ -1,31 +1,35 @@
 <template>
-  <v-text-field class="ma-0 pa-0" hide-details solo flat
-    @keydown.tab.prevent="$emit('tabPress', task.id, $event)"
-    @keydown.down="$emit('arrowPress', task.id, index, 1, $event)"
-    @keydown.up="$emit('arrowPress', task.id, index, -1, $event)"
-    @keydown.esc="$emit('pressedEsc', task.id, index, $event)"
-    @keydown.enter="$emit('pressedEnter', task.id, index, $event)"
-    @keydown.delete="$emit('deleteTask', task.id, -1, index, $event)"
-        @keyup.delete="$emit('deleteKeyUp', $event)"
-        @blur="blur(task.id, $event)"
-        @click="$emit('setActiveTask', $event)"
-  :value="message" @change="v => message = v"
+  <b-input expanded
+    @keydown.tab.native.prevent="$emit('tabPress', task.id, $event)"
+    @keydown.native.down="$emit('arrowPress', task.id, index, 1, $event)"
+    @keydown.native.up="$emit('arrowPress', task.id, index, -1, $event)"
+    @keydown.native.esc="$emit('pressedEsc', task.id, index, $event)"
+    @keydown.native.enter="$emit('pressedEnter', task.id, index, $event)"
+    @keydown.native.delete="$emit('deleteTask', task.id, -1, index, $event)"
+        @keyup.native.delete="$emit('deleteKeyUp', $event)"
+        @blur.native="blur(task.id, $event)"
+        @click.native="$emit('setActiveTask', $event)"
+  :value="message" @change.native="message = $event.target.value"
     :ref="'theInputFieldRef' + index"
-  ></v-text-field>  
+  ></b-input>  
 </template>
 
 <script>
 import {mapMutations} from 'vuex';
+import {mapGetters} from 'vuex';
 export default {
-  props: ["task", "index"],
+  props: ["index"],
     computed: {
+      ...mapGetters(["taskList"]),
+      task() {
+        return this.taskList[this.index]
+      },
     message : {
       get() {
-        return this.task.taskName
+        return this.taskList[this.index].taskName
       }, set(v) {
         // this.task.taskName=v   
-        console.log("index" + this.task.taskIndexInMainList)
-        this.SET_TASK_NAME([this.task.taskIndexInMainList, v]); 
+        this.SET_TASK_NAME([this.index, v]);
       }
     }
   },
@@ -35,6 +39,7 @@ methods: {
     ]),
   blur (taskId, event) {
     // this.showNameInput = false;
+    console.log("hej")
     this.$emit('taskBlurred', taskId, event) 
   }
   // clicked (taskId) {

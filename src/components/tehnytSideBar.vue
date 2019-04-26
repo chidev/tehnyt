@@ -1,32 +1,20 @@
 <template>
-    <v-navigation-drawer
-    right
-    fixed
-    app
-    clipped
-      mobile-break-point="800">
-  <v-layout row wrap>
-    <v-flex>
-            <v-card>
-        <v-card-text>
+<div style="position: fixed">
 {{taskList[activeTask]}}
-</v-card-text>
-      </v-card>
-    </v-flex>
-    <v-flex>
-      <v-card>
-        <v-card-text>
-hej
-</v-card-text>
-      </v-card>
-    </v-flex>
-</v-layout>
-</v-navigation-drawer>
+<hr/>
+<draggable v-model="taskList">
+   <div v-for="element in taskList" :key="element.id">{{element.taskName}}</div>
+</draggable>
+</div>
 </template>
 
 <script>
 import {mapGetters} from 'vuex';
+import draggable from 'vuedraggable';
 export default {
+          components: {
+            draggable,
+        },
   data() {
     return {
       right: true,

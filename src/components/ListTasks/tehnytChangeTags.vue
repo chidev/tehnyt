@@ -1,10 +1,26 @@
 <template>
 <div>
-  <!-- <div v-if="!showTagPicker" @click="showTagPicker=true">{{ truncatedTagList }}  </div> -->
+  <div v-if="!showTagPicker" @click="activateTagPicker">{{ truncatedTagList }}  </div>
       <!-- <v-dialog
       v-model="showTagPicker"
       width=500> -->
-                  <v-combobox
+       <b-taginput v-else
+                :value="message"
+                @input="addTag"
+                :data="filteredTags"
+                size="is-small"
+                attached
+                ellipsis
+                autocomplete
+                allow-new
+                :open-on-focus="hej"
+                icon="label"
+                placeholder="Click to add tag(s)"
+@blur="blurred"
+                :ref="'theTagFieldRef' + task.id"
+                @typing="getFilteredTags">
+            </b-taginput>
+                  <!-- <v-combobox
     :items="tagList"
     label="Add some tags"
     multiple
@@ -24,7 +40,7 @@
         class="grey--text caption"
       >(+{{ message.length - 1 }} others)</span>
     </template>
-    </v-combobox>
+    </v-combobox> -->
 <!-- </v-dialog> -->
      </div>
 </template>
@@ -35,7 +51,9 @@ export default {
 ,
 data () {
   return {
- showTagPicker: false
+    hej: true,
+ showTagPicker: false,
+ filteredTags: this.tagList
   }
 },
 computed: {
@@ -64,28 +82,36 @@ methods: {
                 ...mapMutations([
 'UPDATE_A_TASK'
     ]),
+    activateTagPicker (h) {
+      this.showTagPicker=true
+                       this.$nextTick(() => {
+                         this.$refs["theTagFieldRef" + this.task.id].$el.querySelector('input').focus()
+        // this.$refs["theTagFieldRef" + this.task.id].focus()
+                       }
+      );
+                 
+    },
    addTag (v) {
      const newTag = v[v.length-1].charAt(0).toUpperCase() + v[v.length-1].slice(1); // Tag in input must have first character capitalised to match taglist
      v[v.length-1] = newTag
      this.message = v
     this.$emit('addTagsToTagList', v[v.length-1]) 
-      }
+      },
+      blurred (v) {
+        if (v.explicitOriginalTarget.nodeName !== "A" && v.explicitOriginalTarget.nodeName !== "#text") {
+        this.showTagPicker = false
+         }
+      },
+       getFilteredTags(text) {
+                this.filteredTags  = this.tagList.filter((option) => {
+                    return option
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(text.toLowerCase()) >= 0
+                })
+            }
 }
-//   showRelativeDate(task, type) {
-//       let a;
-//       if (moment(task[type]).diff(new Date(), "days") < 7) {
-//         a = moment(task[type])
-//           .endOf("day")
-//           .fromNow();
-//       } else {
-//         a = moment(task[type]).format("MMM Do YY");
-//       }
-//       if (a == "Invalid date") {
-//         a = "-";
-//       }
-//       return a;
-//     },
-// }
 }
 </script>
+     
            
