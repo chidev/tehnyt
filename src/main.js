@@ -6,7 +6,7 @@ import moment from 'moment'
 // import 'material-design-icons-iconfont/dist/material-design-icons.css'
 import Buefy from 'buefy'
 // import 'buefy/dist/buefy.css'
-import VueDragDrop from 'vue-drag-drop'
+// import VueDragDrop from 'vue-drag-drop'
 
 import { store } from './store/store';
 
@@ -18,7 +18,7 @@ Vue.config.devtools = true
 Vue.use(Buefy, {
   defaultIconPack: 'fas'
 })
-Vue.use(VueDragDrop)
+// Vue.use(VueDragDrop)
 
 new Vue({
   el: '#app',

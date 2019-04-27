@@ -3,7 +3,7 @@
     <div class="columns">
       <div class="column">
         <div class="button" @click="addTasks()">Add tasks</div>
-       <drop  @drop="droppedOnTask"> <div class="button" @click="checkThings">Check things</div></drop>
+       <div class="button" @click="checkThings">Check things</div>
       </div>
 
       <div class="column">
@@ -39,24 +39,23 @@
      <!-- <draggable  v-model="taskListWithImportance"  v-bind="dragOptions" @change="changedSortOrder" @start="drag = true"
 @end="drag = false"> -->
     <div class="columns" v-for="(task, index) in taskListWithImportance" :key="task.id">
-     <drop @drop="droppedOnTask(task.taskIndexInMainList, ...arguments)">
       <div
         class="box is-paddingless is-flex"
         :style="'margin-left: ' + task.indent * 20 + 'px; flex-grow: 1'"
       >
-        <div class="column">
-          <tehnytShowIcon v-if="batchEdit == 'On'" :task="task"></tehnytShowIcon>
+        <!-- <div class="column">
+          <tehnytShowIcon v-if="batchEdit == 'On'" :task="task"></tehnytShowIcon>-->
           <tehnytDeleteTask @deleteTask="deleteTask(task.id, 'trashcan')"></tehnytDeleteTask>
-        </div>
-        <b-field class="column is-two-fifths">
-         <drag :tag="'span'" :transfer-data="task.taskIndexInMainList"><b-icon pack="fas" icon="grip-vertical" size="is-small"></b-icon></drag> 
-          <tehnytForceNextAction @clickedNext="clickedNext(task.id)" :task="task"></tehnytForceNextAction>
-          <tehnytFlag @clickedFlag="clickedFlag(task.id)" :task="task"></tehnytFlag>
-          <tehnytcompleteChildren
+        <!--</div>
+        <b-field class="column is-two-fifths">-->
+          <!-- <tehnytForceNextAction @clickedNext="clickedNext(task.id)" :task="task"></tehnytForceNextAction> -->
+          <!-- <tehnytFlag @clickedFlag="clickedFlag(task.id)" :task="task"></tehnytFlag> -->
+          <!-- <tehnytcompleteChildren
             @completeChildren="completeChildren(task.taskIndexInMainList)"
             :task="task"
-          ></tehnytcompleteChildren>
-          <tehnytShowNameInput
+          ></tehnytcompleteChildren> -->
+          {{task.taskName}}
+          <!-- <tehnytShowNameInput
             :ref="'inputField' + index"
             :index="task.taskIndexInMainList"
             @setActiveTask="setActiveTask(task.id)"
@@ -68,19 +67,20 @@
             @deleteTask="deleteTask"
             @deleteKeyUp="fliphasBeenStopped"
             @taskBlurred="taskBlurred"
-          ></tehnytShowNameInput>
-          <!-- <tehnytShowJustName v-else :taskname="task.taskName" @setActivateThisFieldIndex="setActivateThisFieldIndex(index)"></tehnytShowJustName> -->
-        </b-field>
+          ></tehnytShowNameInput> -->
+          {{taskListWithImportance[index].taskName}}
+          <!-- <tehnytShowJustName :taskname="task.taskName" @setActivateThisFieldIndex="setActivateThisFieldIndex(index)"></tehnytShowJustName> -->
+        <!-- </b-field> -->
 
-        <div class="column">
-          <tehnytStartDate :task="task"></tehnytStartDate>
-        </div>
+        <!-- <div class="column">-->
+          <!-- <tehnytStartDate :task="task"></tehnytStartDate> -->
+        <!--</div>
         <div class="column">
           <tehnytDueDate :task="task"></tehnytDueDate>
-        </div>
+        </div>-->
 
-        <div class="column">
-          <tehnytChangeTags :task="task" :tagList="tagList" @addTagsToTagList="addTagsToTagList"></tehnytChangeTags>
+        <!-- <div class="column"> -->
+          <!-- <tehnytChangeTags :task="task" :tagList="tagList" @addTagsToTagList="addTagsToTagList"></tehnytChangeTags> -->
 
           <!-- <template v-slot:no-data>
       <v-list-tile>
@@ -92,10 +92,9 @@
       </v-list-tile>
           </template>-->
           <!-- </v-combobox> -->
-        </div>
-        <div class="column">{{task.importance}}</div>
+        <!-- </div> -->
+        <!-- <div class="column">{{task.importance}}</div> -->
       </div>
-      </drop>
     </div>
     <!-- </draggable> -->
     <!-- </virtual-list> -->
@@ -221,12 +220,6 @@ export default {
     //     return {...x, importance: this.calculateImportance(x)}
     //   })
     // },
-     dragOptions() {
-      return {
-        animation: 200,
-        ghostClass: "ghost"
-      };
-    },
     taskListWithImportance: {
       get() {
         // Calculate importance per task
@@ -241,11 +234,9 @@ export default {
         // let indexInMainList = this.getMainListIndexFromId(
         //   this.filteredTaskList[val.index].id
         // );
-        if(this.drag == true) {
 
-        } else {
         this.taskList[val.taskIndexInMainList].taskName = val.value;
-        }
+
       }
     },
     // taskListWasChanged() {
